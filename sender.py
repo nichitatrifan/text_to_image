@@ -5,13 +5,17 @@ import socket
 
 from number import generate_prime_number, generate_random_number, N_SIZE
 
+
+FORMAT = 'utf-8'
+DISCONNECT_MESSAGE = '!DISCONNECT!'
+
 class Sender:
     def __init__(self, host_port):
-        # AF_INET refers to the address-family ipv4
+        # AF_INET refers to the address-family IPv4
         # SOCK_STREAM means connection-oriented TCP protocol
 
-        self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._s.connect(host_port)
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.connect(host_port)
         self.pixels = []
 
     def key_exchange(self, key):
@@ -32,8 +36,8 @@ class Sender:
                 data['h'].append(h)
                 data['A'].append(pow(n,aa,h))
 
-            self._s.sendall(f'{json.dumps(data)}\n'.encode())
-            jsn = self._s.recv(1024).decode() # decodes 1024 bytes
+            self.client.sendall(f'{json.dumps(data)}\n'.encode())
+            jsn = self.client.recv(1024).decode() # decodes 1024 bytes
 
             fro = json.loads(jsn)
 
@@ -46,4 +50,4 @@ class Sender:
                 print(f'Added RGB value: {A_prime}')
 
     def close(self):
-        self._s.close()
+        self.client.close()
