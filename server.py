@@ -16,7 +16,7 @@ class ThreadServer:
         self.logger.setLevel(logging.INFO)
 
     def handle_client(self, client_socket, addr):
-        print(f'[NEW CONNECTION] {addr} connected.')
+        self.logger.info(f'[NEW CONNECTION] {addr} connected.')
         connected = True
         
         while connected:
@@ -63,7 +63,7 @@ class ThreadServer:
 
     def start(self):
         self.server.listen()
-        self.logger.info(f'[LISTENNING] Server is listenning on {HOST} {PORT}')
+        self.logger.info(f'[LISTENNING] {HOST} {PORT}')
 
         while True:
             try:
@@ -74,6 +74,7 @@ class ThreadServer:
             except KeyboardInterrupt as kyi:
                 self.logger.warning('[KeyBoard Interrupt]')
                 self.server.close()
+
 
 if __name__ == '__main__':
     print('Starting the server at: ' + str(HOST) + ' ' + str(PORT))
