@@ -2,12 +2,12 @@
 
 import json
 import socket
+import string
+from time import sleep
 
 from number import generate_prime_number, generate_random_number, N_SIZE
+from settings import *
 
-
-FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = '!DISCONNECT!'
 
 class Sender:
     def __init__(self, host_port):
@@ -17,10 +17,18 @@ class Sender:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect(host_port)
         self.pixels = []
+        self.printables_string = string.printable
+        self.char_map = {}
 
-    def key_exchange(self, key):
-        for _l in key:
-            print(f'LETTER: {_l}')
+    def init_char_map(self):
+        for char in self.printables_string:
+            self.char_map[char] = []
+
+    def key_exchange(self):
+        self.init_char_map()
+        for char in self.char_map:
+            print(f'CHAR: {char}')
+
             a = []
             data = {
                 'n': [],
@@ -31,6 +39,7 @@ class Sender:
                 n  = generate_prime_number(N_SIZE)
                 aa = generate_prime_number(N_SIZE)
                 h  = generate_prime_number(N_SIZE)
+
                 data['n'].append(n)
                 a.append(aa)
                 data['h'].append(h)
@@ -48,6 +57,7 @@ class Sender:
 
             if A_prime:
                 print(f'Added RGB value: {A_prime}')
+                self.char_map[char] = A_prime
 
     def close(self):
         self.client.close()

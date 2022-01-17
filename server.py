@@ -1,4 +1,3 @@
-from email.errors import NonPrintableDefect
 import socket
 import threading
 import json
@@ -71,7 +70,7 @@ class ThreadServer:
                 client_socket, addr = self.server.accept() # it waits here for a new connection
                 thread = threading.Thread(target=self.handle_client, args=(client_socket, addr))
                 thread.start()
-                self.logger.info(f'[ACTIVE CONNECTIONS] {threading.activeCount() - 1}')
+                self.logger.info(f'[ACTIVE CONNECTIONS] {threading.active_count() - 1}')
             except KeyboardInterrupt as kyi:
                 self.logger.warning('[KeyBoard Interrupt]')
                 self.server.close()

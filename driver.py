@@ -5,10 +5,11 @@ import sys
 from sender import Sender
 from receiver import Receiver
 
-def main(key):
-    #s = Sender(('localhost', 9999))
+def main():
+    # s = Sender(('localhost', 9999))
     s = Sender(('localhost', 5050))
-    s.key_exchange(key)
+    # s.key_exchange(key)
+    s.key_exchange()
     s.close()
 
 
@@ -20,4 +21,4 @@ if __name__ == '__main__':
     #     print(f'Usage: {sys.argv[0]}')
     #     sys.exit(0)
     #main(sys.argv[1])
-    main('M12345')
+    main()
