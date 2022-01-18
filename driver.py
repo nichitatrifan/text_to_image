@@ -10,6 +10,7 @@ def main():
     s = Sender(('localhost', 5050))
     # s.key_exchange(key)
     s.key_exchange()
+    s.save_char_map()
     s.close()
 
 
