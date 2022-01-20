@@ -1,3 +1,4 @@
+from http import client
 import socket
 import threading
 import json
@@ -11,9 +12,12 @@ class ThreadServer:
     def __init__(self) -> None:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(ADDR)
+
         logging.basicConfig()
         self.logger = logging.getLogger('TCPLogger')
         self.logger.setLevel(logging.INFO)
+        
+        self.threads = []
 
     def handle_client(self, client_socket, addr):
         self.logger.info(f'[NEW CONNECTION] {addr} connected.')
@@ -60,23 +64,46 @@ class ThreadServer:
                     self.logger.info(f'{addr} added RGB value: {B_prime}')
 
         client_socket.close()
+        self.logger.info('[THREAD] Function Ended Execution')
+        return 1
+
+    def start_conn_thread(self, client_socket, addr):
+        if client_socket: 
+            thread = threading.Thread(target=self.handle_client, args=(client_socket, addr))
+            thread.start()
+            self.logger.info(f'[ACTIVE CONNECTIONS] {threading.active_count() - 1}')
+            self.threads.append(thread)
 
     def start(self):
         self.server.listen()
         self.logger.info(f'[LISTENNING] {HOST} {PORT}')
+        self.server.settimeout(2.0)
+        client_socket = None
 
         while True:
             try:
-                client_socket, addr = self.server.accept() # it waits here for a new connection
-                thread = threading.Thread(target=self.handle_client, args=(client_socket, addr))
-                thread.start()
-                self.logger.info(f'[ACTIVE CONNECTIONS] {threading.active_count() - 1}')
-            except KeyboardInterrupt as kyi:
+                try:
+                    client_socket, addr = self.server.accept() # it waits here for a new connection
+
+                except TimeoutError:
+                    self.logger.info('[SERVER SOCKET] TIMEOUT REACHED')
+                    self.logger.info(f'[ACTIVE CONNECTIONS] {threading.active_count() - 1}')
+
+            except KeyboardInterrupt:
                 self.logger.warning('[KeyBoard Interrupt]')
-                self.server.close()
+                for thr in self.threads:
+                    self.logger.info(f'[THREAD {thr.ident}] FINISHED')
+                    thr.join()
+                break
+
+            if client_socket:
+                    self.start_conn_thread(client_socket, addr)
+        
+        #self.server.shutdown(socket.SHUT_RDWR)
+        self.server.close()
+        self.logger.warning('[SERVER CLOSED CONNECTION]')
 
 
 if __name__ == '__main__':
-    print('Starting the server at: ' + str(HOST) + ' ' + str(PORT))
     my_server = ThreadServer()
     my_server.start()
