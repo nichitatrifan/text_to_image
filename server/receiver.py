@@ -3,7 +3,7 @@
 import json
 import socketserver
 
-from number import generate_prime_number, generate_random_number, N_SIZE
+from side_modules.number import generate_prime_number, generate_random_number, N_SIZE
 
 class Receiver(socketserver.StreamRequestHandler):
     def __init__(self, *args):

@@ -3,7 +3,7 @@ import socketserver
 import json
 import logging
 
-from number import generate_prime_number, generate_random_number, N_SIZE
+from side_modules.number import generate_prime_number, generate_random_number, N_SIZE
 from settings import *
 
 

@@ -2,8 +2,8 @@
 
 import sys
 
-from sender import Sender
-from receiver import Receiver
+from client.sender import Sender
+from server.receiver import Receiver
 
 def main():
     #s = Sender(('localhost', 9999))
