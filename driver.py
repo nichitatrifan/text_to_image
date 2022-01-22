@@ -6,7 +6,7 @@ from sender import Sender
 from receiver import Receiver
 
 def main():
-    # s = Sender(('localhost', 9999))
+    #s = Sender(('localhost', 9999))
     s = Sender(('localhost', 5050))
     # s.key_exchange(key)
     s.key_exchange()

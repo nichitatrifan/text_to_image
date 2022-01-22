@@ -78,13 +78,13 @@ class ThreadServer:
         self.server.listen()
         self.logger.info(f'[LISTENNING] {HOST} {PORT}')
         self.server.settimeout(2.0)
+        
         client_socket = None
 
         while True:
             try:
                 try:
                     client_socket, addr = self.server.accept() # it waits here for a new connection
-
                 except TimeoutError:
                     self.logger.info('[SERVER SOCKET] TIMEOUT REACHED')
                     self.logger.info(f'[ACTIVE CONNECTIONS] {threading.active_count() - 1}')
