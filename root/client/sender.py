@@ -5,8 +5,8 @@ import socket
 import string
 import os
 
-from side_modules.number import generate_prime_number, generate_random_number, N_SIZE
-from settings import *
+from ..side_modules.number import generate_prime_number, N_SIZE
+from ..side_modules.settings import *
 from datetime import datetime
 
 class Sender:

@@ -1,11 +1,10 @@
-from http import client
 import socket
 import threading
 import json
 import logging
 
-from side_modules.number import generate_prime_number, generate_random_number, N_SIZE
-from settings import *
+from root.side_modules.number import generate_prime_number, generate_random_number, N_SIZE
+from root.side_modules.settings import *
 
 
 class ThreadServer:

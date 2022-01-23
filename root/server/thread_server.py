@@ -3,9 +3,8 @@ import socketserver
 import json
 import logging
 
-from side_modules.number import generate_prime_number, generate_random_number, N_SIZE
-from settings import *
-
+from ..side_modules.number import generate_prime_number, N_SIZE
+from ..side_modules.settings import *
 
 class Logger:
     def __init__(self) -> None:    

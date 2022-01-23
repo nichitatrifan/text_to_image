@@ -1,9 +1,7 @@
 '''Driver Code'''
-
 import sys
 
-from client.sender import Sender
-from server.receiver import Receiver
+from root.client.sender import Sender
 
 def main():
     #s = Sender(('localhost', 9999))
