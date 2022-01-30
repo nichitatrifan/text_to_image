@@ -11,12 +11,9 @@ from datetime import datetime
 
 class Sender:
     def __init__(self, host_port):
-        # AF_INET refers to the address-family IPv4
-        # SOCK_STREAM means connection-oriented TCP protocol
-        # date regex: '(\d{4}-\d{2}-\d{2})'
-
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect(host_port)
+
         self.pixels = []
         self.printables_string = string.printable
         self.char_map = {}
@@ -31,6 +28,8 @@ class Sender:
             self.char_map[char] = []
 
     def key_exchange(self):
+        header = 'key_exchange'
+
         self.init_char_map()
         for char in self.char_map:
             print(f'CHAR: {char}')
@@ -41,24 +40,24 @@ class Sender:
                 'h': [],
                 'A': []
             }
-            for _i in range(3):
+            for i in range(3):
                 n  = generate_prime_number(N_SIZE)
                 aa = generate_prime_number(N_SIZE)
                 h  = generate_prime_number(N_SIZE)
 
-                data['n'].append(n)
-                a.append(aa)
-                data['h'].append(h)
-                data['A'].append(pow(n,aa,h))
+                a.append(aa)                  # secret number
+                data['n'].append(n)           # generator number
+                data['h'].append(h)           # mod number
+                data['A'].append(pow(n,aa,h)) # public key A = (n)^aa (mod h) 
 
-            self.client.sendall(f'{json.dumps(data)}\n'.encode())
-            jsn = self.client.recv(1024).decode() # decodes 1024 bytes
+            self.client.sendall(json.dumps({'header':header, 'data':data}).encode())
 
+            jsn = self.client.recv(1024).decode()
             fro = json.loads(jsn)
 
             A_prime = []
-            for B,aa,h in zip(fro['B'],a,data['h']):
-                A_prime.append(pow(B,aa,h) % 200)
+            for B,aa,h in zip(fro['B'], a, data['h']):
+                A_prime.append(pow(B,aa,h) % 200) # A' = B^aa (mod h)
             self.pixels.append(tuple(A_prime))
 
             if A_prime:
@@ -66,8 +65,20 @@ class Sender:
                 self.char_map[char] = A_prime
         
     def save_char_map(self):
-        with open(self.json_path, 'w', encoding="utf-8") as file:
+        with open(self.json_path, 'w', encoding='utf-8') as file:
             json.dump(self.char_map, file, indent=4, ensure_ascii=False)
+    
+    def send_message(self, message:str)->None:
+        encoded_message = ''
+        header = 'message'
+
+        for chr in message:
+            r, g, b = self.char_map[chr]
+            encoded_message += str(r) + str(g) + str(b)
+        print(encoded_message)
+
+        self.client.sendall(json.dumps({'header':header,
+            'data':encoded_message}).encode())
 
     def close(self):
         self.client.close()

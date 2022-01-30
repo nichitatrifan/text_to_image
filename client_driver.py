@@ -9,6 +9,7 @@ def main():
     # s.key_exchange(key)
     s.key_exchange()
     s.save_char_map()
+    s.send_message('My message!')
     s.close()
 
 

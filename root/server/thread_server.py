@@ -33,7 +33,15 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 connected = False
                 data = None
 
-            if data:
+            
+
+        self.logger.info('[THREAD] Function Ended Execution')
+        return 1
+
+    def handle_key_exchange(self, data):
+        client_socket = self.request
+        addr = self.client_address
+        if data:
                 b = []
                 B = []
                 pixels = []
@@ -56,10 +64,9 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
                 if B_prime:
                     self.logger.info(f'{addr} added RGB value: {B_prime}')
-
-        self.logger.info('[THREAD] Function Ended Execution')
-        return 1
-
+    
+    def exchange_messages(self):
+        pass
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer, Logger):
     # need to create a function for the active connections displaying
