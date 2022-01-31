@@ -69,12 +69,14 @@ class Sender:
             json.dump(self.char_map, file, indent=4, ensure_ascii=False)
     
     def send_message(self, message:str)->None:
-        encoded_message = ''
+        '''Sends the encoded message in the body'''
+        
+        encoded_message = []
         header = 'message'
 
         for chr in message:
             r, g, b = self.char_map[chr]
-            encoded_message += str(r) + str(g) + str(b)
+            encoded_message += [str(r), str(g), str(b)]
         print(encoded_message)
 
         self.client.sendall(json.dumps({'header':header,

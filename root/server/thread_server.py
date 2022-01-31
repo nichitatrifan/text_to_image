@@ -28,8 +28,11 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         while connected:
             try:
                 data = json.loads(client_socket.recv(1024).strip().decode(FORMAT))
+
                 if data['header'] == 'key_exchange':
                     self.handle_key_exchange(data['data'])
+                elif data['header'] == 'message':
+                    self.exchange_messages(data['data'])
             except:
                 self.logger.warning('[NO DATA HAS BEEN SENT]')
                 connected = False
@@ -39,6 +42,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         return 1
 
     def handle_key_exchange(self, data):
+        ''' Exchanges the keyes between server and the client '''
+
         client_socket = self.request
         addr = self.client_address
         if data:
@@ -65,8 +70,13 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 if B_prime:
                     self.logger.info(f'{addr} added RGB value: {B_prime}')
     
-    def exchange_messages(self):
-        pass
+    def exchange_messages(self, data):
+        i = 0
+        while i < len(data) - 3:
+            self.logger.info('[SERVER] char accepted: ' +\
+                data[i] + ' ' + data[i+1] + ' ' + data[i+2])
+            i += 1
+
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer, Logger):
     # need to create a function for the active connections displaying
