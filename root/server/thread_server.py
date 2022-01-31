@@ -28,12 +28,12 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         while connected:
             try:
                 data = json.loads(client_socket.recv(1024).strip().decode(FORMAT))
+                if data['header'] == 'key_exchange':
+                    self.handle_key_exchange(data['data'])
             except:
                 self.logger.warning('[NO DATA HAS BEEN SENT]')
                 connected = False
                 data = None
-
-            
 
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
