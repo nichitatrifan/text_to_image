@@ -1,5 +1,3 @@
-'''Sender Class'''
-
 import json
 import socket
 import string
@@ -26,6 +24,29 @@ class Sender:
     def init_char_map(self):
         for char in self.printables_string:
             self.char_map[char] = []
+    
+    def seed_exchenge(self):
+        ''' Exchanges the seed with the server
+            This will allow a random map generation '''
+        seed_n = generate_prime_number(N_SIZE)
+        seed_a_private = generate_prime_number(N_SIZE)
+        seed_h = generate_prime_number(N_SIZE)
+        seed_A_public = pow(seed_n, seed_a_private, seed_h) # public key A = (n)^a (mod h)
+
+        header = 'seed_exchange'
+        data = {
+            'n':seed_n,
+            'h':seed_h,
+            'A':seed_A_public
+        }
+        self.client.sendall(json.dumps({'header':header, 'data':data}).encode())
+        jsn = self.client.recv(1024).decode()
+        print(jsn)
+        response_data = json.loads(jsn)
+
+        B = response_data['B']
+        A_prime = pow(B, seed_a_private, seed_h) # A' = B^a (mod h)
+        print('Seed number: ' + str(A_prime))
 
     def key_exchange(self):
         header = 'key_exchange'

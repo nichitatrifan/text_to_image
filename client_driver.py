@@ -6,10 +6,10 @@ from root.client.sender import Sender
 def main():
     #s = Sender(('localhost', 9999))
     s = Sender(('localhost', 5050))
-    # s.key_exchange(key)
-    s.key_exchange()
-    s.save_char_map()
-    s.send_message('My message!')
+    #s.key_exchange()
+    #s.save_char_map()
+    #s.send_message('My message!')
+    s.seed_exchenge()
     s.close()
 
 

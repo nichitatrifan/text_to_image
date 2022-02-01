@@ -4,7 +4,7 @@ from root.side_modules.settings import *
 if __name__ == "__main__":
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
     ip, port = server.server_address
-    server.logger.info(f'[LISTENNING] {HOST} {PORT}')
+    server.logger.info(f'LISTENNING {HOST} {PORT}')
 
     with server:    
         # Start a thread with the server -- that thread will then start one
@@ -17,9 +17,9 @@ if __name__ == "__main__":
 
             while server_thread.is_alive():
                 server_thread.join(1.0) # waits until the thread terminates
-                server.logger.info(f'[ACTIVE CONNECTIONS] {threading.active_count() - 1}')
+                server.logger.info(f'ACTIVE CONNECTIONS {threading.active_count() - 1}')
 
             # print("Server loop running in thread:", server_thread.name)
         except KeyboardInterrupt as kyi:
-            server.logger.warning('[KeyBoard Interrupt]')
+            server.logger.warning('KeyBoard Interrupt')
             server.shutdown()
