@@ -2,6 +2,7 @@ import json
 import socket
 import string
 import os
+import random
 
 from ..side_modules.number import generate_prime_number, N_SIZE
 from ..side_modules.settings import *
@@ -11,7 +12,6 @@ class Sender:
     def __init__(self, host_port):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect(host_port)
-
         self.pixels = []
         self.printables_string = string.printable
         self.char_map = {}
@@ -21,9 +21,14 @@ class Sender:
             '_' + str(date_obj.second)  
         self.json_path = os.path.abspath(os.getcwd()).replace('\\','/') + f'/char_maps/char_map_{self.date}.json'  
 
-    def init_char_map(self):
-        for char in self.printables_string:
-            self.char_map[char] = []
+    def init_char_map(self, seed):
+        printable_string = string.printable
+        printable_list = []
+        for char in printable_string:
+            printable_list.append(char)
+        random.Random(seed).shuffle(printable_list)
+        for char in printable_list:
+            self.char_map[char] = None
     
     def seed_exchenge(self):
         ''' Exchanges the seed with the server
@@ -47,11 +52,11 @@ class Sender:
         B = response_data['B']
         A_prime = pow(B, seed_a_private, seed_h) # A' = B^a (mod h)
         print('Seed number: ' + str(A_prime))
+        self.init_char_map(seed=A_prime)
 
     def key_exchange(self):
         header = 'key_exchange'
 
-        self.init_char_map()
         for char in self.char_map:
             print(f'CHAR: {char}')
 

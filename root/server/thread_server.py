@@ -17,15 +17,17 @@ class Logger:
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request, client_address, server) -> None:
-        self.seed_num = 0
         self.char_map = {}
-        self.init_char_map()
         Logger.__init__(self)
         super().__init__(request, client_address, server)
     
-    def init_char_map(self):
-        printables_string = string.printable
-        for char in printables_string:
+    def init_char_map(self, seed):
+        printable_string = string.printable
+        printable_list = []
+        for char in printable_string:
+            printable_list.append(char)
+        random.Random(seed).shuffle(printable_list)
+        for char in printable_list:
             self.char_map[char] = None
     
     def handle(self):
@@ -48,7 +50,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 self.logger.warning('NO DATA HAS BEEN SENT')
                 connected = False
                 data = None
-
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
 
@@ -61,11 +62,12 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         
         seed_b_private = generate_prime_number(N_SIZE)
         seed_B_public = pow(n, seed_b_private, h)
-        self.seed_num = pow(A, seed_b_private, h)
-        self.logger.info(' seed number: ' + str(self.seed_num))
+        seed_num = pow(A, seed_b_private, h)
+        self.logger.info(' seed number: ' + str(seed_num))
         return_data = {
             'B': seed_B_public
         }
+        self.init_char_map(seed=seed_num)
         client_socket.sendall(json.dumps(return_data).encode(FORMAT))
 
     def handle_key_exchange(self, data):
