@@ -46,10 +46,10 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                     self.handle_seed_exchange(data['data'])
                 elif data['header'] == 'message':
                     self.exchange_messages(data['data'], self.char_map)
-            except:                                                         #TODO the exception is too general! Change Later!
-                self.logger.warning('NO DATA HAS BEEN SENT')
+            except Exception as ex:        #TODO the exception is too general! Change Later!
+                self.logger.warning(str(ex))
                 connected = False
-                data = None
+
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
 
@@ -77,7 +77,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         if data:
             b = []
             B = []
-            pixels = []
 
             for n,h in zip(data['n'], data['h']):
                 bb = generate_prime_number(N_SIZE)
@@ -93,7 +92,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             B_prime = []
             for A,bb,h in zip(data['A'], b, data['h']):
                 B_prime.append(str(pow(A,bb,h) % 200))
-            # pixels.append(B_prime)
 
             if B_prime:
                 for key in self.char_map:
@@ -112,8 +110,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             for key in self.char_map:
                 if self.char_map[key] == [data[i], data[i+1], data[i+2]]:
                     message += key
-            # self.logger.info('char accepted: ' +\
-            #     data[i] + ' ' + data[i+1] + ' ' + data[i+2])
             i += 3
         self.logger.info('Message: ' + message)
 
