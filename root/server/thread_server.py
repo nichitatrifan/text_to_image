@@ -4,6 +4,7 @@ import json
 import logging
 import string
 import random
+import sys
 
 from ..side_modules.number import generate_prime_number, N_SIZE
 from ..side_modules.settings import *
@@ -30,6 +31,14 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         for char in printable_list:
             self.char_map[char] = None
     
+    def parse_http_request(self, client_socket):
+        body = ''
+        method_path, headers_body = (client_socket.recv(1024).decode(FORMAT)).split('\r\n',1)
+        headers, body = headers_body.split('\r\n\r\n', 1)
+        self.logger.info('request path: ' + str(method_path))
+        self.logger.info('headers:\n' + str(headers))
+        self.logger.info('body: ' + str(body))
+    
     def handle(self):
         client_socket = self.request
         addr = self.client_address
@@ -38,8 +47,10 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         connected = True
         while connected:
             try:
-                data = json.loads(client_socket.recv(1024).strip().decode(FORMAT))
-
+                #data = json.loads(client_socket.recv(1024).strip().decode(FORMAT))
+                data = self.parse_http_request(client_socket)
+                
+                #TODO change endpoints formating
                 if data['header'] == 'key_exchange':
                     self.handle_key_exchange(data['data'])
                 elif data['header'] == 'seed_exchange':
@@ -47,7 +58,11 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 elif data['header'] == 'message':
                     self.exchange_messages(data['data'], self.char_map)
             except Exception as ex:        #TODO the exception is too general! Change Later!
+                exception_type, exception_object, exception_traceback = sys.exc_info()
+                filename = exception_traceback.tb_frame.f_code.co_filename
+                line_number = exception_traceback.tb_lineno
                 self.logger.warning(str(ex))
+                self.logger.warning('line number: ' + str(line_number))
                 connected = False
 
         self.logger.info('[THREAD] Function Ended Execution')
