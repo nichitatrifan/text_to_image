@@ -5,6 +5,7 @@ import logging
 import string
 import random
 import sys
+import ast
 
 from ..side_modules.number import generate_prime_number, N_SIZE
 from ..side_modules.settings import *
@@ -32,12 +33,40 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             self.char_map[char] = None
     
     def parse_http_request(self, client_socket):
-        body = ''
-        method_path, headers_body = (client_socket.recv(1024).decode(FORMAT)).split('\r\n',1)
+        """ Parses HTTP request """
+        raw_data = client_socket.recv(1024).decode(FORMAT)
+        if not raw_data:
+            return None
+
+        method_path, headers_body = raw_data.split('\r\n',1)
+        
         headers, body = headers_body.split('\r\n\r\n', 1)
-        self.logger.info('request path: ' + str(method_path))
-        self.logger.info('headers:\n' + str(headers))
-        self.logger.info('body: ' + str(body))
+        end_point = method_path.split(' ')[1]
+
+        text = headers.split('\r\n')
+        headers.replace('\r\n', '')
+        body = body.replace('\r\n', '')
+        body = ast.literal_eval(body)
+
+        # self.logger.info('request path: ' + str(method_path))
+        # self.logger.info('end_point: ' + str(end_point))
+        # self.logger.info('headers:\n' + str(headers))
+        # self.logger.info(body)
+
+        head_list = []
+        for element in text:
+            key, value = element.split(':',1)
+            hdict = {key:value}
+            head_list.append(hdict)
+
+        return_data = {
+            'end_point': str(end_point),
+            'headers': json.dumps(head_list),
+            'body': body
+        }
+        self.logger.info(return_data)
+
+        return return_data
     
     def handle(self):
         client_socket = self.request
@@ -48,15 +77,18 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         while connected:
             try:
                 #data = json.loads(client_socket.recv(1024).strip().decode(FORMAT))
-                data = self.parse_http_request(client_socket)
+                parsed_request = self.parse_http_request(client_socket)
                 
                 #TODO change endpoints formating
-                if data['header'] == 'key_exchange':
-                    self.handle_key_exchange(data['data'])
-                elif data['header'] == 'seed_exchange':
-                    self.handle_seed_exchange(data['data'])
-                elif data['header'] == 'message':
-                    self.exchange_messages(data['data'], self.char_map)
+                if parsed_request['end_point'] == 'key_exchange':
+                    self.handle_key_exchange(parsed_request['body'])
+
+                elif parsed_request['end_point'] == 'seed_exchange':
+                    self.handle_seed_exchange(parsed_request['body'])
+
+                elif parsed_request['end_point'] == 'message':
+                    self.exchange_messages(parsed_request['body'], self.char_map)
+
             except Exception as ex:        #TODO the exception is too general! Change Later!
                 exception_type, exception_object, exception_traceback = sys.exc_info()
                 filename = exception_traceback.tb_frame.f_code.co_filename
