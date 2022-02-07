@@ -64,8 +64,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             'headers': json.dumps(head_list),
             'body': body
         }
-        self.logger.info(return_data)
 
+        self.logger.info(return_data)
         return return_data
     
     def handle(self):
@@ -76,17 +76,17 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         connected = True
         while connected:
             try:
-                #data = json.loads(client_socket.recv(1024).strip().decode(FORMAT))
                 parsed_request = self.parse_http_request(client_socket)
-                
+                # self.logger.info(parsed_request)
+
                 #TODO change endpoints formating
-                if parsed_request['end_point'] == 'key_exchange':
+                if parsed_request['end_point'] == '/key_exchange':
                     self.handle_key_exchange(parsed_request['body'])
 
-                elif parsed_request['end_point'] == 'seed_exchange':
+                elif parsed_request['end_point'] == '/seed_exchange':
                     self.handle_seed_exchange(parsed_request['body'])
 
-                elif parsed_request['end_point'] == 'message':
+                elif parsed_request['end_point'] == '/message':
                     self.exchange_messages(parsed_request['body'], self.char_map)
 
             except Exception as ex:        #TODO the exception is too general! Change Later!
