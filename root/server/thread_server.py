@@ -6,7 +6,9 @@ import string
 import random
 import sys
 import ast
+import traceback
 
+from datetime import datetime
 from ..side_modules.number import generate_prime_number, N_SIZE
 from ..side_modules.settings import *
 
@@ -32,9 +34,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         for char in printable_list:
             self.char_map[char] = None
     
-    def parse_http_request(self, client_socket):
+    def parse_http_request(self, client_socket, raw_data):
         """ Parses HTTP request """
-        raw_data = client_socket.recv(1024).decode(FORMAT)
         if not raw_data:
             return None
 
@@ -65,8 +66,27 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             'body': body
         }
 
-        self.logger.info(return_data)
+        # self.logger.info(return_data)
         return return_data
+    
+    def parse_http_response(self, data:dict, status_code:str) -> str:
+        date_obj = datetime.now()
+        date = str(date_obj.day) + '_' + str(date_obj.month)  + \
+            '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
+            '_' + str(date_obj.second)
+        
+        content_len = len(json.dumps(data).encode('utf-8'))
+
+        response = f'HTTP/1.1 {status_code}\r\n' +\
+        f'Date: {date}\r\n' +\
+        'Server: localhost\r\n' +\
+        f'Content-Length: {content_len}\r\n' +\
+        'Connection: Closed\r\n' +\
+        'Content-Type: text/html\r\n'+\
+        '\r\n' # need an empty line in between headers and data
+        
+        response += str(json.dumps(data)) + '\r\n'
+        return response
     
     def handle(self):
         client_socket = self.request
@@ -76,7 +96,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         connected = True
         while connected:
             try:
-                parsed_request = self.parse_http_request(client_socket)
+                raw_data = client_socket.recv(1024).decode(FORMAT)
+                parsed_request = self.parse_http_request(client_socket, raw_data)
                 # self.logger.info(parsed_request)
 
                 #TODO change endpoints formating
@@ -94,8 +115,9 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 filename = exception_traceback.tb_frame.f_code.co_filename
                 line_number = exception_traceback.tb_lineno
                 self.logger.warning(str(ex))
-                self.logger.warning('line number: ' + str(line_number))
+                traceback.print_tb(exception_traceback)
                 connected = False
+                self.logger.info('[THREAD] Function Ended Execution Through Exception!')
 
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
@@ -121,31 +143,49 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         ''' Exchanges the keyes between server and the client '''
         client_socket = self.request
         addr = self.client_address
+
+        n_data = data['n']
+        h_data = data['h']
+        A_data = data['A']
+        self.logger.info(f'A list: {A_data}')
+        self.logger.info(f'h list: {h_data}')
+        self.logger.info(f'n list: {n_data}')
+
         if data:
             b = []
-            B = []
+            B_public = []
+            B_private = []
 
-            for n,h in zip(data['n'], data['h']):
-                bb = generate_prime_number(N_SIZE)
-                b.append(bb)
-                B.append(pow(n,bb,h))
+            for n_list, h_list, A_list in zip(n_data, h_data, A_data): # unpack to single list
+                temp_b = []
+                temp_B_public = []
+                temp_B_private = []
+                for n, h, A in zip(n_list, h_list, A_list): # unpack to individual values
+                    bb = generate_prime_number(N_SIZE)
+                    temp_b.append(bb)
+                    temp_B_public.append(pow(n,bb,h))
+                B_public.append(temp_B_public)
+                b.append(temp_b)
+                
+                # Generating private Key
+                for A, bb, h in zip(A_list, temp_b, h_list):
+                    temp_B_private.append(str(pow(A, bb, h) % 200)) # B' = A^b (mod h)
+                B_private.append(temp_B_private)
 
-            return_data = { 
-                'B': B
-                }
-
-            client_socket.sendall(f'{json.dumps(return_data)}\n'.encode(FORMAT)) # encodes to a byte array
+            if B_private:
+                for  B in B_private:
+                    for key in self.char_map:
+                        if not self.char_map[key]:
+                            self.char_map[key] = B_private
+                            break
+                self.logger.info(f'{addr} added RGB value: {B_private}')
             
-            B_prime = []
-            for A,bb,h in zip(data['A'], b, data['h']):
-                B_prime.append(str(pow(A,bb,h) % 200))
-
-            if B_prime:
-                for key in self.char_map:
-                    if not self.char_map[key]:
-                        self.char_map[key] = B_prime
-                        break
-                self.logger.info(f'{addr} added RGB value: {B_prime}')
+            _data = { 
+                'B': B_public
+                }
+            status_code = '200 OK'
+            response_data = self.parse_http_response(_data, status_code)
+            client_socket.sendall(response_data.encode(FORMAT))
     
     def exchange_messages(self, data, char_map):
         ''' Exchanges the messages between server and the client '''
@@ -167,7 +207,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer, Log
     def __init__(self, *args) -> None:
         Logger.__init__(self)
         super().__init__(*args)
-
+    
 
 if __name__ == "__main__":
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)

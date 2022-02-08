@@ -21,5 +21,8 @@ if __name__ == "__main__":
 
             # print("Server loop running in thread:", server_thread.name)
         except KeyboardInterrupt as kyi:
+            # join all the threads on the server!
             server.logger.warning('KeyBoard Interrupt')
+            server_thread.join()
             server.shutdown()
+            
