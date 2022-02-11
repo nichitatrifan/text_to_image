@@ -96,7 +96,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         while connected and not SHUT_DOWN_SERVER:
             try:
                 raw_data = client_socket.recv(1024).decode(FORMAT)
-                parsed_request = self.parse_http_request(client_socket, raw_data)
+                parsed_request = self.parse_http_request(raw_data)
                 # self.logger.info(parsed_request)
 
                 #TODO change endpoints formating
@@ -108,7 +108,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
                 elif parsed_request['end_point'] == '/message':
                     self.exchange_messages(parsed_request['body'], self.char_map)
-            
+
             except socket.timeout as te:
                 pass
 

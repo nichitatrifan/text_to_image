@@ -1,6 +1,14 @@
 const Http = new XMLHttpRequest()
 const url = 'http://127.0.0.1:5050/key_exchange'
-const range = [100, 1000];
+
+$.ajax({
+   url: url,
+   data: data,
+   success: success,
+   dataType: dataType
+ });
+
+const range = [10000, 100000];
 const btn = document.getElementById("send-button");
 
 btn.addEventListener('click', function(){
