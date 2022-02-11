@@ -9,6 +9,7 @@ import ast
 import traceback
 
 from datetime import datetime
+
 from ..side_modules.number import generate_prime_number, N_SIZE
 from ..side_modules.settings import *
 from ..side_modules.logger import Logger
@@ -90,7 +91,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         
         client_socket.settimeout(0.5)
         global SHUT_DOWN_SERVER 
-        # set timeout to repeat the cycle 
 
         connected = True
         while connected and not SHUT_DOWN_SERVER:
@@ -111,7 +111,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             
             except socket.timeout as te:
                 pass
-
+            
             except Exception as ex:        #TODO the exception is too general! Change Later!
                 exception_type, exception_object, exception_traceback = sys.exc_info()
                 filename = exception_traceback.tb_frame.f_code.co_filename
