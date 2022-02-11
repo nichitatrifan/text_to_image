@@ -1,7 +1,7 @@
 import threading
 import socketserver
 import json
-import logging
+import socket
 import string
 import random
 import sys
@@ -11,12 +11,7 @@ import traceback
 from datetime import datetime
 from ..side_modules.number import generate_prime_number, N_SIZE
 from ..side_modules.settings import *
-
-class Logger:
-    def __init__(self) -> None:    
-        logging.basicConfig()
-        self.logger = logging.getLogger('[SERVER]')
-        self.logger.setLevel(logging.INFO)
+from ..side_modules.logger import Logger
 
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
@@ -92,9 +87,13 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         client_socket = self.request
         addr = self.client_address
         self.logger.info(f'{addr} connected.')
+        
+        client_socket.settimeout(0.5)
+        global SHUT_DOWN_SERVER 
+        # set timeout to repeat the cycle 
 
         connected = True
-        while connected:
+        while connected and not SHUT_DOWN_SERVER:
             try:
                 raw_data = client_socket.recv(1024).decode(FORMAT)
                 parsed_request = self.parse_http_request(client_socket, raw_data)
@@ -109,6 +108,9 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
                 elif parsed_request['end_point'] == '/message':
                     self.exchange_messages(parsed_request['body'], self.char_map)
+            
+            except socket.timeout as te:
+                pass
 
             except Exception as ex:        #TODO the exception is too general! Change Later!
                 exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -208,6 +210,10 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer, Log
         Logger.__init__(self)
         super().__init__(*args)
     
+    def signal_shut_down(self):
+        global SHUT_DOWN_SERVER
+        SHUT_DOWN_SERVER = True
+
 
 if __name__ == "__main__":
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)

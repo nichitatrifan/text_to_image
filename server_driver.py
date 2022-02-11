@@ -23,6 +23,6 @@ if __name__ == "__main__":
         except KeyboardInterrupt as kyi:
             # join all the threads on the server!
             server.logger.warning('KeyBoard Interrupt')
-            server_thread.join()
+            server.signal_shut_down()
             server.shutdown()
             
