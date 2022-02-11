@@ -1,43 +1,27 @@
+const Http = new XMLHttpRequest()
+const url = 'http://127.0.0.1:5050/key_exchange'
+const range = [100, 1000];
+const btn = document.getElementById("send-button");
 
+btn.addEventListener('click', function(){
+   console.log(getRandomPrime(range))
+});
 
-const socket = new WebSocket("ws://localhost:8001/");
-
-socket.onopen = function(e) {
-  alert("[open] Connection established");
-  alert("Sending to server");
-  socket.send("My name is John");
+const getPrimes = (min, max) => {
+   const result = Array(max + 1)
+   .fill(0)
+   .map((_, i) => i);
+   for (let i = 2; i <= Math.sqrt(max + 1); i++) {
+      for (let j = i ** 2; j < max + 1; j += i) delete result[j];
+   }
+   return Object.values(result.slice(min));
 };
 
-function sendText() {
-  // Создайте объект содержащий данные, необходимые серверу для обрабоки сообщения от клиента чата.
-  var msg = {
-    type: "message",
-    text: document.getElementById("text").value,
-    id:   clientID,
-    date: Date.now()
-  }
-
-  // Отправьте объект в виде JSON строки.
-  socket.send(JSON.stringify(msg));
-
-  // Очистите элемент ввода текста, чтобы получить следующую строку текста от пользователя.
-  document.getElementById("text").value = "";
+const getRandomNum = (min, max) => {
+   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-socket.onmessage = function (event) {
-  console.log(event.data);
-}
-
-socket.onclose = function(event) {
-  if (event.wasClean) {
-    alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-  } else {
-    // e.g. server process killed or network down
-    // event.code is usually 1006 in this case
-    alert('[close] Connection died');
-  }
-};
-
-socket.onerror = function(error) {
-  alert(`[error] ${error.message}`);
+const getRandomPrime = ([min, max]) => {
+   const primes = getPrimes(min, max);
+   return primes[getRandomNum(0, primes.length - 1)];
 };

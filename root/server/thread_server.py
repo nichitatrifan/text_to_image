@@ -30,7 +30,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         for char in printable_list:
             self.char_map[char] = None
     
-    def parse_http_request(self, client_socket, raw_data):
+    def parse_http_request(self, raw_data):
         """ Parses HTTP request """
         if not raw_data:
             return None
@@ -111,7 +111,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             
             except socket.timeout as te:
                 pass
-            
+
             except Exception as ex:        #TODO the exception is too general! Change Later!
                 exception_type, exception_object, exception_traceback = sys.exc_info()
                 filename = exception_traceback.tb_frame.f_code.co_filename
