@@ -1,3 +1,7 @@
+import os
+
+
+import os
 import threading
 import socketserver
 import json
@@ -42,13 +46,17 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
         text = headers.split('\r\n')
         headers.replace('\r\n', '')
-        body = body.replace('\r\n', '')
-        body = ast.literal_eval(body)
+
+        if body:
+            body = body.replace('\r\n', '')
+            self.logger.info(body)
+            body = ast.literal_eval(body)
+        else:
+            body = {}
 
         # self.logger.info('request path: ' + str(method_path))
-        # self.logger.info('end_point: ' + str(end_point))
+        self.logger.info('end_point: ' + str(end_point))
         # self.logger.info('headers:\n' + str(headers))
-        # self.logger.info(body)
 
         head_list = []
         for element in text:
@@ -96,18 +104,24 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         while connected and not SHUT_DOWN_SERVER:
             try:
                 raw_data = client_socket.recv(1024).decode(FORMAT)
-                parsed_request = self.parse_http_request(raw_data)
-                # self.logger.info(parsed_request)
+                if raw_data:
+                    parsed_request = self.parse_http_request(raw_data)
+                    # self.logger.info(parsed_request)
 
-                #TODO change endpoints formating
-                if parsed_request['end_point'] == '/key_exchange':
-                    self.handle_key_exchange(parsed_request['body'])
+                    #TODO change endpoints formating
+                    #TODO add /index endpoint
 
-                elif parsed_request['end_point'] == '/seed_exchange':
-                    self.handle_seed_exchange(parsed_request['body'])
+                    if parsed_request['end_point'] == '/key_exchange':
+                        self.handle_key_exchange(parsed_request['body'])
 
-                elif parsed_request['end_point'] == '/message':
-                    self.exchange_messages(parsed_request['body'], self.char_map)
+                    elif parsed_request['end_point'] == '/seed_exchange':
+                        self.handle_seed_exchange(parsed_request['body'])
+
+                    elif parsed_request['end_point'] == '/message':
+                        self.exchange_messages(parsed_request['body'], self.char_map)
+
+                    elif parsed_request['end_point'] == '/index':
+                        self.index()
 
             except socket.timeout as te:
                 pass
@@ -123,6 +137,18 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
+
+    def index(self):
+        client_socket = self.request
+        resource_path = os.path.abspath(os.getcwd()).replace('\\','/') + '/root/client/static/index.html'
+
+        with open(resource_path, 'r') as fl:
+            htm_text = fl.read()
+        self.logger.info(htm_text)
+
+        status_code = '200 OK'
+        response_data = self.parse_http_response(htm_text, status_code)
+        client_socket.sendall(response_data.encode(FORMAT))
 
     def handle_seed_exchange(self, data):
         """ Handles the seed exchange between the client and the server """
