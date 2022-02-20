@@ -7,3 +7,4 @@ HOST = 'localhost'
 ADDR = (HOST, PORT)
 FORMAT = 'utf-8'
 SHUT_DOWN_SERVER = False
+THREAD_POOL = {}
