@@ -19,7 +19,6 @@ if __name__ == "__main__":
                 server.logger.info(f'ACTIVE CONNECTIONS {threading.active_count() - 1}')
 
         except KeyboardInterrupt as kyi:
-            # join all the threads on the server!
             server.logger.warning('KeyBoard Interrupt')
             server.signal_shut_down()
             server.shutdown()
