@@ -7,20 +7,20 @@ import socket
 import string
 import random
 import sys
-import ast
 import traceback
 
 import root.side_modules.settings as st
 
-from datetime import datetime
-
 from root.side_modules.number import generate_prime_number, N_SIZE
 from root.side_modules.settings import *
-from root.side_modules.logger import Logger
+from root.server.logger import Logger
+from root.server.http_parser import HTTPParser
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request, client_address, server) -> None:
         self.char_map = {}
+        self.http_parser = HTTPParser()
+
         Logger.__init__(self)
         super().__init__(request, client_address, server)
     
@@ -48,68 +48,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             st.CONNECTED_CLIENTS[client_ip].remove(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
     
-    def parse_http_request(self, raw_data):
-        """ Parses HTTP request """
-        if not raw_data:
-            return None
-
-        method_path, headers_body = raw_data.split('\r\n',1)
-        method_path = method_path.replace('%22','')
-        headers, body = headers_body.split('\r\n\r\n', 1)
-        
-        end_point = method_path.split(' ')[1]
-        if end_point[-1] == '/':
-            end_point_list  = list(end_point)
-            end_point_list[-1] = ''
-            end_point = ''.join(end_point_list)
-        
-        text = headers.split('\r\n')
-        if body:
-            body = body.replace('\r\n', '')
-            self.logger.info(body)
-            body = ast.literal_eval(body)
-        else:
-            body = {}
-
-        # self.logger.info('request path: ' + str(method_path))
-        self.logger.info('end_point: ' + str(end_point))
-        # self.logger.info('headers:\n'+headers)
-
-        head_dict = {}
-        for element in text:
-            key, value = element.split(':',1) #TODO replace the initial space
-            head_dict[key] = value
-
-        # self.logger.info('headers:\n'+str(head_list))
-        
-        return_data = {
-            'end_point': str(end_point),
-            'headers': head_dict,
-            'body': body
-        }
-
-        # self.logger.info(return_data)
-        return return_data
-    
-    def parse_http_response(self, data:dict, status_code:str) -> str:
-        date_obj = datetime.now()
-        date = str(date_obj.day) + '_' + str(date_obj.month)  + \
-            '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
-            '_' + str(date_obj.second)
-        
-        content_len = len(json.dumps(data).encode('utf-8'))
-
-        response = f'HTTP/1.1 {status_code}\r\n' +\
-            f'Date: {date}\r\n' +\
-            'Server: localhost\r\n' +\
-            f'Content-Length: {content_len}\r\n' +\
-            'Connection: Closed\r\n' +\
-            'Content-Type: text/html\r\n'+\
-            '\r\n'
-        
-        response += str(json.dumps(data)) + '\r\n'
-        return response
-    
     def handle(self):
         client_socket = self.request
         addr = self.client_address
@@ -126,7 +64,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 raw_data = client_socket.recv(1024).decode(st.FORMAT)
                 if raw_data:
 
-                    parsed_request = self.parse_http_request(raw_data)
+                    parsed_request = self.http_parser.parse_http_request(raw_data)
 
                     if 'Referer' in parsed_request['headers']:
                         # self.logger.info('Refer header: ' + parsed_request['headers']['Referer'])
@@ -176,7 +114,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         # self.logger.info(htm_text)
 
         status_code = '200 OK'
-        response_data = self.parse_http_response(htm_text, status_code)
+        response_data = self.http_parser.parse_http_response(htm_text, status_code)
         client_socket.sendall(response_data.encode(st.FORMAT))
 
     def handle_seed_exchange(self, data):
@@ -241,7 +179,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 'B': B_public
                 }
             status_code = '200 OK'
-            response_data = self.parse_http_response(_data, status_code)
+            response_data = self.http_parser.parse_http_response(_data, status_code)
             client_socket.sendall(response_data.encode(st.FORMAT))
     
     def exchange_messages(self, data, char_map):

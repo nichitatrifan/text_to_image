@@ -4,7 +4,7 @@ import socketserver
 import root.side_modules.settings as st
 
 from root.side_modules.settings import *
-from root.side_modules.logger import Logger
+from root.server.logger import Logger
 from root.server.request_handler import ThreadedTCPRequestHandler
 
 
