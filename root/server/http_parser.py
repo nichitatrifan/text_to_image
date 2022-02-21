@@ -6,8 +6,9 @@ from datetime import datetime
 class HTTPParser:
     def __init__(self) -> None:
         pass
-
-    def parse_http_response(self, data:dict, status_code:str) -> str:
+    
+    @classmethod
+    def parse_http_response(cls, data:dict, status_code:str) -> str:
         date_obj = datetime.now()
         date = str(date_obj.day) + '_' + str(date_obj.month)  + \
             '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
@@ -26,7 +27,8 @@ class HTTPParser:
         response += str(json.dumps(data)) + '\r\n'
         return response
 
-    def parse_http_request(self, raw_data):
+    @classmethod
+    def parse_http_request(cls, raw_data):
         """ Parses HTTP request """
         if not raw_data:
             return None

@@ -19,7 +19,6 @@ from root.server.http_parser import HTTPParser
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request, client_address, server) -> None:
         self.char_map = {}
-        self.http_parser = HTTPParser()
 
         Logger.__init__(self)
         super().__init__(request, client_address, server)
@@ -64,7 +63,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 raw_data = client_socket.recv(1024).decode(st.FORMAT)
                 if raw_data:
 
-                    parsed_request = self.http_parser.parse_http_request(raw_data)
+                    parsed_request = HTTPParser.parse_http_request(raw_data)
 
                     if 'Referer' in parsed_request['headers']:
                         # self.logger.info('Refer header: ' + parsed_request['headers']['Referer'])
@@ -114,7 +113,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         # self.logger.info(htm_text)
 
         status_code = '200 OK'
-        response_data = self.http_parser.parse_http_response(htm_text, status_code)
+        response_data = HTTPParser.parse_http_response(htm_text, status_code)
         client_socket.sendall(response_data.encode(st.FORMAT))
 
     def handle_seed_exchange(self, data):
@@ -179,7 +178,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 'B': B_public
                 }
             status_code = '200 OK'
-            response_data = self.http_parser.parse_http_response(_data, status_code)
+            response_data = HTTPParser.parse_http_response(_data, status_code)
             client_socket.sendall(response_data.encode(st.FORMAT))
     
     def exchange_messages(self, data, char_map):
