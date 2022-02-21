@@ -42,7 +42,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             st.CONNECTED_CLIENTS[client_ip].append(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
     
-    def remove_client_from_pool(self, client_ip, client_port):
+    def remove_from_client_pool(self, client_ip, client_port):
         addresses = st.CONNECTED_CLIENTS.keys()
         if client_ip in addresses:
             st.CONNECTED_CLIENTS[client_ip].remove(client_port)
@@ -161,7 +161,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 self.logger.info('[THREAD] Function Ended Execution Through Exception!')
         
         if child_request:
-            self.remove_client_from_pool(client_ip, client_port)
+            self.remove_from_client_pool(client_ip, client_port)
         
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
