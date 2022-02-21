@@ -1,5 +1,6 @@
 from ntpath import join
 import os
+from pydoc import tempfilepager
 import socketserver
 import json
 import socket
@@ -32,6 +33,21 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         for char in printable_list:
             self.char_map[char] = None
     
+    def add_to_client_pool(self, client_ip, client_port):
+        addresses = st.CONNECTED_CLIENTS.keys()
+        if client_ip not in addresses:
+            temp = [client_port]
+            st.CONNECTED_CLIENTS[client_ip] = temp
+        else:
+            st.CONNECTED_CLIENTS[client_ip].append(client_port)
+        self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
+    
+    def remove_client_from_pool(self, client_ip, client_port):
+        addresses = st.CONNECTED_CLIENTS.keys()
+        if client_ip in addresses:
+            st.CONNECTED_CLIENTS[client_ip].remove(client_port)
+        self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
+    
     def parse_http_request(self, raw_data):
         """ Parses HTTP request """
         if not raw_data:
@@ -40,6 +56,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         method_path, headers_body = raw_data.split('\r\n',1)
         method_path = method_path.replace('%22','')
         headers, body = headers_body.split('\r\n\r\n', 1)
+        
         end_point = method_path.split(' ')[1]
         if end_point[-1] == '/':
             end_point_list  = list(end_point)
@@ -54,20 +71,20 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         else:
             body = {}
 
-        self.logger.info('request path: ' + str(method_path))
+        # self.logger.info('request path: ' + str(method_path))
         self.logger.info('end_point: ' + str(end_point))
+        # self.logger.info('headers:\n'+headers)
 
-        head_list = []
+        head_dict = {}
         for element in text:
             key, value = element.split(':',1) #TODO replace the initial space
-            hdict = {key:value}
-            head_list.append(hdict)
+            head_dict[key] = value
 
         # self.logger.info('headers:\n'+str(head_list))
         
         return_data = {
             'end_point': str(end_point),
-            'headers': json.dumps(head_list),
+            'headers': head_dict,
             'body': body
         }
 
@@ -96,20 +113,26 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def handle(self):
         client_socket = self.request
         addr = self.client_address
-        self.logger.info(f'{addr} connected.')
-        client_socket.settimeout(0.5)
+        client_ip, client_port = addr
+        self.add_to_client_pool(client_ip, client_port)
 
+        self.logger.info(f'{addr} connected.')
+
+        client_socket.settimeout(0.5)
         connected = True
-        while connected and not st.SHUT_DOWN_SERVER:
+        child_request = False
+        while connected and not st.SHUT_DOWN_SERVER and not child_request:
             try:
                 raw_data = client_socket.recv(1024).decode(st.FORMAT)
                 if raw_data:
+
                     parsed_request = self.parse_http_request(raw_data)
-                    # self.logger.info(parsed_request)
+
+                    if 'Referer' in parsed_request['headers']:
+                        # self.logger.info('Refer header: ' + parsed_request['headers']['Referer'])
+                        child_request = True
 
                     #TODO change endpoints formating
-                    #TODO add /index endpoint
-
                     if parsed_request['end_point'] == '/key_exchange':
                         self.handle_key_exchange(parsed_request['body'])
 
@@ -122,6 +145,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                     elif parsed_request['end_point'] == '/index':
                         self.index()
                     else:
+                        self.logger.info('Does nothing now')
                         pass #TODO search the url or internal path for static files
 
             except socket.timeout as te:
@@ -135,7 +159,10 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 traceback.print_tb(exception_traceback)
                 connected = False
                 self.logger.info('[THREAD] Function Ended Execution Through Exception!')
-
+        
+        if child_request:
+            self.remove_client_from_pool(client_ip, client_port)
+        
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
 
@@ -145,7 +172,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
         with open(resource_path, 'r') as fl:
             htm_text = fl.read()
-        self.logger.info(htm_text)
+        
+        # self.logger.info(htm_text)
 
         status_code = '200 OK'
         response_data = self.parse_http_response(htm_text, status_code)
@@ -228,3 +256,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                     message += key
             i += 3
         self.logger.info('Message: ' + message)
+
+if __name__ == '__main__':
+    pass
