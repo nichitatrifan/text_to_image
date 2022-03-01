@@ -10,9 +10,10 @@ import traceback
 import root.side_modules.settings as st
 
 from root.side_modules.number import generate_prime_number, N_SIZE
-from root.side_modules.settings import *
+#from root.side_modules.settings import *
 from root.server.logger import Logger
 from root.server.http_parser import HTTPParser
+from root.server.views import *
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request, client_address, server) -> None:
@@ -47,15 +48,17 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     
     def handle(self):
         client_socket = self.request
+        client_socket.settimeout(0.5)
+
         addr = self.client_address
         client_ip, client_port = addr
-        self.add_to_client_pool(client_ip, client_port)
 
         self.logger.info(f'{addr} connected.')
+        self.add_to_client_pool(client_ip, client_port)
 
-        client_socket.settimeout(0.5)
         connected = True
         child_request = False
+
         while connected and not st.SHUT_DOWN_SERVER and not child_request:
             try:
                 raw_data = client_socket.recv(1024).decode(st.FORMAT)
@@ -64,7 +67,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                     parsed_request = HTTPParser.parse_http_request(raw_data)
 
                     if 'Referer' in parsed_request['headers']:
-                        # self.logger.info('Refer header: ' + parsed_request['headers']['Referer'])
                         child_request = True
 
                     #TODO change endpoints formating
@@ -79,14 +81,16 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
                     elif parsed_request['end_point'] == '/index':
                         self.index()
+
                     else:
+                        #TODO search the url or internal path for static files
                         self.logger.info('Does nothing now')
-                        pass #TODO search the url or internal path for static files
 
             except socket.timeout as te:
                 pass
 
-            except Exception as ex:        #TODO the exception is too general! Change Later!
+            except Exception as ex:
+                #TODO the exception is too general! Change Later!
                 exception_type, exception_object, exception_traceback = sys.exc_info()
                 filename = exception_traceback.tb_frame.f_code.co_filename
                 line_number = exception_traceback.tb_lineno

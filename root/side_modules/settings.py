@@ -1,9 +1,14 @@
 # SETTINGS FILE
-
 HEADER = 1024
-PORT = 5050
+
 HOST = 'localhost'
+PORT = 5050
 ADDR = (HOST, PORT)
+
 FORMAT = 'utf-8'
+
 SHUT_DOWN_SERVER = False
+
 CONNECTED_CLIENTS = {}
+
+ROUTE_MAP = {}
