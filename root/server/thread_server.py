@@ -2,7 +2,6 @@ import socketserver
 
 import root.side_modules.settings as st
 
-#from root.side_modules.settings import *
 from root.server.logger import Logger
 
 

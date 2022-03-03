@@ -10,7 +10,6 @@ import traceback
 import root.side_modules.settings as st
 
 from root.side_modules.number import generate_prime_number, N_SIZE
-#from root.side_modules.settings import *
 from root.server.logger import Logger
 from root.server.http_parser import HTTPParser
 from root.server.views import *
@@ -18,7 +17,6 @@ from root.server.views import *
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request, client_address, server) -> None:
         self.char_map = {}
-
         Logger.__init__(self)
         super().__init__(request, client_address, server)
     
@@ -31,6 +29,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         for char in printable_list:
             self.char_map[char] = None
     
+    # remains in request_handler
     def add_to_client_pool(self, client_ip, client_port):
         addresses = st.CONNECTED_CLIENTS.keys()
         if client_ip not in addresses:
@@ -40,12 +39,14 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             st.CONNECTED_CLIENTS[client_ip].append(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
     
+    # remains in request_handler
     def remove_from_client_pool(self, client_ip, client_port):
         addresses = st.CONNECTED_CLIENTS.keys()
         if client_ip in addresses:
             st.CONNECTED_CLIENTS[client_ip].remove(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
     
+    # request_handler method
     def handle(self):
         client_socket = self.request
         client_socket.settimeout(0.5)
@@ -80,12 +81,12 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                         self.exchange_messages(parsed_request['body'], self.char_map)
 
                     elif parsed_request['end_point'] == '/index':
-                        self.index()
-
+                        response_data = st.ROUTE_MAP[parsed_request['end_point']](parsed_request['body'])
+                        client_socket.sendall(response_data.encode(st.FORMAT))
                     else:
                         #TODO search the url or internal path for static files
                         self.logger.info('Does nothing now')
-
+                        
             except socket.timeout as te:
                 pass
 
@@ -94,30 +95,20 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 exception_type, exception_object, exception_traceback = sys.exc_info()
                 filename = exception_traceback.tb_frame.f_code.co_filename
                 line_number = exception_traceback.tb_lineno
+
                 self.logger.warning(str(ex))
-                traceback.print_tb(exception_traceback)
-                connected = False
+                self.logger.warning(exception_type)
+                traceback.print_tb(exception_traceback)                
                 self.logger.info('[THREAD] Function Ended Execution Through Exception!')
-        
+
+                connected = False
+
         if child_request:
             self.remove_from_client_pool(client_ip, client_port)
         
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
-
-    def index(self):
-        client_socket = self.request
-        resource_path = os.path.abspath(os.getcwd()).replace('\\','/') + '/root/client/static/index.html'
-
-        with open(resource_path, 'r') as fl:
-            htm_text = fl.read()
-        
-        # self.logger.info(htm_text)
-
-        status_code = '200 OK'
-        response_data = HTTPParser.parse_http_response(htm_text, status_code)
-        client_socket.sendall(response_data.encode(st.FORMAT))
-
+    
     def handle_seed_exchange(self, data):
         """ Handles the seed exchange between the client and the server """
         client_socket = self.request

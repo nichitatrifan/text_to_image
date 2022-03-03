@@ -28,7 +28,7 @@ class HTTPParser:
         return response
 
     @classmethod
-    def parse_http_request(cls, raw_data):
+    def parse_http_request(cls, raw_data) -> dict:
         """ Parses HTTP request """
         if not raw_data:
             return None
