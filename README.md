@@ -12,6 +12,7 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 - [x] Router class
 - [x] key exchange endpoint
 - [x] seed exchange endpoint
+- [ ] add error handling for endpoints
 - [ ] map creation endpoint
 - [ ] upgrade to WS endpoint
 - [ ] start frontend
