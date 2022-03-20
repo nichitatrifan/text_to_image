@@ -59,7 +59,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                                 )
                             client_socket.sendall(response_data.encode(st.FORMAT))
                         else:
-                            #TODO handling other requests 
+                            #TODO handling other requests
+                            self.logger.info(parsed_request['end_point']) 
                             pass
 
             except socket.timeout as te:
@@ -84,18 +85,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
 
-    def exchange_messages(self, data, char_map):
-        ''' Exchanges the messages between server and the client '''
-        i = 0
-        self.logger.info('char map: ')
-        self.logger.info(char_map)
-        message = ''
-        while i < len(data) - 2:
-            for key in st.CHAR_MAP:
-                if st.CHAR_MAP[key] == [data[i], data[i+1], data[i+2]]:
-                    message += key
-            i += 3
-        self.logger.info('Message: ' + message)
 
 if __name__ == '__main__':
     pass

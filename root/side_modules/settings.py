@@ -1,6 +1,7 @@
 # SETTINGS FILE
-HEADER = 1024
+import os
 
+HEADER = 1024
 HOST = 'localhost'
 PORT = 5050
 ADDR = (HOST, PORT)
@@ -14,3 +15,5 @@ CONNECTED_CLIENTS = {}
 ROUTE_MAP = {}
 
 CHAR_MAP = {}
+
+STATIC_PATH = os.path.abspath(os.getcwd()).replace('\\','/') + '/root/client/static'

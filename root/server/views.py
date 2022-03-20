@@ -12,7 +12,7 @@ from root.side_modules.number import *
 @Router('/index')
 def index(parsed_request:dict) -> str:
     """ Uploads the starting page """
-    resource_path = os.path.abspath(os.getcwd()).replace('\\','/') + '/root/client/static/index.html'
+    resource_path = st.STATIC_PATH + '/index.html'
 
     with open(resource_path, 'r') as fl:
         html_text = fl.read()
