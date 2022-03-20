@@ -14,6 +14,7 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 - [x] seed exchange endpoint
 - [ ] add error handling for endpoints
 - [ ] map creation endpoint
+- [ ] add resource path to the settings.py
 - [ ] upgrade to WS endpoint
 - [ ] start frontend
 - [ ] modify exception handling in request_handler.py

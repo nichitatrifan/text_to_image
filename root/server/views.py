@@ -7,8 +7,11 @@ from root.server.router import Router
 from root.server.http_parser import HTTPParser
 from root.side_modules.number import *
 
+# a = [37199, 56843, 48523]
+
 @Router('/index')
 def index(parsed_request:dict) -> str:
+    """ Uploads the starting page """
     resource_path = os.path.abspath(os.getcwd()).replace('\\','/') + '/root/client/static/index.html'
 
     with open(resource_path, 'r') as fl:
