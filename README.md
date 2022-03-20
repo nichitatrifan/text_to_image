@@ -10,7 +10,8 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 ## TODO List
 
 - [x] Router class
-- [ ] key exchange endpoint
+- [x] key exchange endpoint
+- [x] seed exchange endpoint
 - [ ] map creation endpoint
 - [ ] upgrade to WS endpoint
 - [ ] start frontend

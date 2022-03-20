@@ -1,15 +1,10 @@
-import os
 import socketserver
-import json
 import socket
-import string
-import random
 import sys
 import traceback
 
 import root.side_modules.settings as st
 
-from root.side_modules.number import generate_prime_number, N_SIZE
 from root.server.logger import Logger
 from root.server.http_parser import HTTPParser
 from root.server.views import *
@@ -18,19 +13,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request, client_address, server) -> None:
         Logger.__init__(self)
         super().__init__(request, client_address, server)
-    
-    def init_char_map(self, seed):
-        printable_string = string.printable
-        printable_list = []
 
-        for char in printable_string:
-            printable_list.append(char)
-    
-        random.Random(seed).shuffle(printable_list)
-        for char in printable_list:
-            st.CHAR_MAP[char] = None
-    
-    # remains in request_handler
     def add_to_client_pool(self, client_ip, client_port):
         addresses = st.CONNECTED_CLIENTS.keys()
         if client_ip not in addresses:
@@ -39,15 +22,13 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         else:
             st.CONNECTED_CLIENTS[client_ip].append(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
-    
-    # remains in request_handler
+
     def remove_from_client_pool(self, client_ip, client_port):
         addresses = st.CONNECTED_CLIENTS.keys()
         if client_ip in addresses:
             st.CONNECTED_CLIENTS[client_ip].remove(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
-    
-    # request_handler method
+
     def handle(self):
         client_socket = self.request
         client_socket.settimeout(0.5)
@@ -72,11 +53,15 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                         child_request = True
 
                     if parsed_request:
-                        response_data = st.ROUTE_MAP[parsed_request['end_point']](
-                            parsed_request['body']
-                            )
-                        client_socket.sendall(response_data.encode(st.FORMAT))
-                        
+                        if parsed_request['end_point'] in st.ROUTE_MAP: 
+                            response_data = st.ROUTE_MAP[parsed_request['end_point']](
+                                parsed_request
+                                )
+                            client_socket.sendall(response_data.encode(st.FORMAT))
+                        else:
+                            #TODO handling other requests 
+                            pass
+
             except socket.timeout as te:
                 pass
 
@@ -98,24 +83,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
-    
-    def handle_seed_exchange(self, data):
-        """ Handles the seed exchange between the client and the server """
-        client_socket = self.request
-        addr = self.client_address
 
-        A, n, h = data['A'], data['n'], data['h']
-        
-        seed_b_private = generate_prime_number(N_SIZE)
-        seed_B_public = pow(n, seed_b_private, h)
-        seed_num = pow(A, seed_b_private, h)
-        self.logger.info(' seed number: ' + str(seed_num))
-        return_data = {
-            'B': seed_B_public
-        }
-        self.init_char_map(seed=seed_num)
-        client_socket.sendall(json.dumps(return_data).encode(st.FORMAT))
-    
     def exchange_messages(self, data, char_map):
         ''' Exchanges the messages between server and the client '''
         i = 0

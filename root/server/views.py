@@ -1,4 +1,6 @@
 import os
+import string
+import random
 import root.side_modules.settings as st
 
 from root.server.router import Router
@@ -13,13 +15,14 @@ def index(parsed_request:dict) -> str:
         html_text = fl.read()
 
     status_code = '200 OK'
-    
+
     return HTTPParser.parse_http_response(html_text, status_code)
 
 @Router('/key_exchange')
 def handle_key_exchange(parsed_request:dict):
     ''' Exchanges the keyes between server and the client '''
 
+    # check what info is in the dict
     if parsed_request['body']:
         n_data = parsed_request['body']['n']
         h_data = parsed_request['body']['h']
@@ -68,3 +71,30 @@ def handle_key_exchange(parsed_request:dict):
         status_code = '400 Bad Request'
 
         return HTTPParser.parse_http_response(_data, status_code)
+
+@Router('/seed_exchange')
+def handle_seed_exchange(parsed_request:dict):
+    """ Handles the seed exchange between the client and the server """
+
+    A, n, h =  parsed_request['body']['A'],  parsed_request['body']['n'],  parsed_request['body']['h']
+
+    seed_b_private = generate_prime_number(N_SIZE)
+    seed_B_public = pow(n, seed_b_private, h)
+    seed_num = pow(A, seed_b_private, h)
+
+    printable_string = string.printable
+    printable_list = []
+
+    for char in printable_string:
+        printable_list.append(char)
+
+    random.Random(seed_num).shuffle(printable_list)
+    for char in printable_list:
+        st.CHAR_MAP[char] = None
+
+    _data = { 
+        'B': seed_B_public
+        }
+    status_code = '200 OK'
+
+    return HTTPParser.parse_http_response(_data, status_code)
