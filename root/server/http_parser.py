@@ -8,23 +8,22 @@ class HTTPParser:
         pass
     
     @classmethod
-    def parse_http_response(cls, data:dict, status_code:str) -> str:
+    def parse_http_response_header(cls, data:bytes, status_code:str, type:str) -> bytes:
         date_obj = datetime.now()
         date = str(date_obj.day) + '_' + str(date_obj.month)  + \
             '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
-            '_' + str(date_obj.second)
-        
-        content_len = len(json.dumps(data).encode('utf-8'))
+            '_' + str(date_obj.second)        
+        content_len = len(data)
 
         response = f'HTTP/1.1 {status_code}\r\n' +\
             f'Date: {date}\r\n' +\
             'Server: localhost\r\n' +\
             f'Content-Length: {content_len}\r\n' +\
             'Connection: Closed\r\n' +\
-            'Content-Type: text/html\r\n'+\
+            f'Content-Type: {type}\r\n'+\
             '\r\n'
         
-        response += str(json.dumps(data)) + '\r\n'
+        response = response.encode('utf-8')
         return response
 
     @classmethod

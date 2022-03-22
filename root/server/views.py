@@ -1,4 +1,4 @@
-import os
+import json
 import string
 import random
 import root.side_modules.settings as st
@@ -14,12 +14,16 @@ def index(parsed_request:dict) -> str:
     """ Uploads the starting page """
     resource_path = st.STATIC_PATH + '/index.html'
 
-    with open(resource_path, 'r') as fl:
+    with open(resource_path, 'rb') as fl:
         html_text = fl.read()
 
     status_code = '200 OK'
+    response = {
+        'header': HTTPParser.parse_http_response_header(html_text, status_code, 'text/html'),
+        'payload': html_text
+    }
 
-    return HTTPParser.parse_http_response(html_text, status_code)
+    return response
 
 @Router('/key_exchange')
 def handle_key_exchange(parsed_request:dict):
@@ -65,15 +69,21 @@ def handle_key_exchange(parsed_request:dict):
             'B': B_public
             }
         status_code = '200 OK'
-
-        return HTTPParser.parse_http_response(_data, status_code)
+        response = {
+            'header': HTTPParser.parse_http_response_header(_data, status_code, 'text/html'),
+            'payload': str(json.dumps(_data)).encode('utf-8')
+        }
+        return response
     else:
         _data = { 
             'B': 'None'
             }
         status_code = '400 Bad Request'
-
-        return HTTPParser.parse_http_response(_data, status_code)
+        response = {
+            'header': HTTPParser.parse_http_response(_data, status_code, 'text/html'),
+            'payload': str(json.dumps(_data)).encode('utf-8')
+        }
+        return response
 
 @Router('/seed_exchange')
 def handle_seed_exchange(parsed_request:dict):
@@ -99,5 +109,8 @@ def handle_seed_exchange(parsed_request:dict):
         'B': seed_B_public
         }
     status_code = '200 OK'
-
-    return HTTPParser.parse_http_response(_data, status_code)
+    response = {
+        'header': HTTPParser.parse_http_response_header(_data, status_code, 'text/html'),
+        'payload': str(json.dumps(_data)).encode('utf-8')
+        }
+    return response

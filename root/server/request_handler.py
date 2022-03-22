@@ -54,17 +54,31 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
                     if parsed_request:
                         if parsed_request['end_point'] in st.ROUTE_MAP: 
-                            response_data = st.ROUTE_MAP[parsed_request['end_point']](
+                            response_dict = st.ROUTE_MAP[parsed_request['end_point']](
                                 parsed_request
                                 )
-                            client_socket.sendall(response_data.encode(st.FORMAT))
+                            client_socket.send(response_dict['header'])
+                            client_socket.send(response_dict['payload'])
+                            client_socket.send('\r\n'.encode('utf-8'))
                         else:
                             #TODO handling other requests
-                            self.logger.info(parsed_request['end_point']) 
-                            pass
+                            self.logger.info(parsed_request['end_point'])
+                            path = st.STATIC_PATH + parsed_request['end_point']
+                            with open(path, 'rb') as st_file:
+                                file_payload = st_file.read()
+                            
+                            status_code = '200 OK'
+                            # make different content types
+                            response_header = HTTPParser.parse_http_response_header(file_payload, status_code,'application/javascript')
+                            client_socket.send(response_header)
+                            client_socket.send(file_payload)
+                            client_socket.send('\r\n'.encode('utf-8'))
 
             except socket.timeout as te:
                 pass
+            
+            except FileNotFoundError as er:
+                self.logger.warning('RESOURCE ' + parsed_request['end_point'] + ' NOT FOUND!') 
 
             except Exception as ex:
                 #TODO the exception is too general! Change Later!
