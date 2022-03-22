@@ -19,5 +19,4 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 - [ ] start frontend
 - [ ] modify exception handling in request_handler.py
 - [ ] char-map initialization
-- [ ] handle requests for JS, CSS, and other http
-- [ ] send images
+- [x] handle requests for JS, CSS, and other http
