@@ -2,6 +2,7 @@ import socketserver
 import socket
 import sys
 import traceback
+import re
 
 import root.side_modules.settings as st
 
@@ -61,15 +62,19 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                             client_socket.send(response_dict['payload'])
                             client_socket.send('\r\n'.encode('utf-8'))
                         else:
-                            #TODO handling other requests
                             self.logger.info(parsed_request['end_point'])
+                            
                             path = st.STATIC_PATH + parsed_request['end_point']
                             with open(path, 'rb') as st_file:
                                 file_payload = st_file.read()
                             
                             status_code = '200 OK'
-                            # make different content types
-                            response_header = HTTPParser.parse_http_response_header(file_payload, status_code,'application/javascript')
+                            type = 'application/javascript'
+                            
+                            resource_extension = re.search(st.EXTENSION_TYPES_REGEX, parsed_request['end_point'])
+                            type = st.EXTENSION_TYPES[resource_extension.group(0)]
+                                                        
+                            response_header = HTTPParser.parse_http_response_header(file_payload, status_code, type)
                             client_socket.send(response_header)
                             client_socket.send(file_payload)
                             client_socket.send('\r\n'.encode('utf-8'))
