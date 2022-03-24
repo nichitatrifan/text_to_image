@@ -58,9 +58,10 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                             response_dict = st.ROUTE_MAP[parsed_request['end_point']](
                                 parsed_request
                                 )
-                            client_socket.send(response_dict['header'])
-                            client_socket.send(response_dict['payload'])
-                            client_socket.send('\r\n'.encode('utf-8'))
+                            client_socket.send(response_dict['header'].encode(st.FORMAT))
+                            print(response_dict['payload'])
+                            client_socket.send(response_dict['payload'].encode(st.FORMAT))
+                            client_socket.send('\r\n'.encode(st.FORMAT))
                         else:
                             self.logger.info(parsed_request['end_point'])
                             
@@ -75,9 +76,9 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                             type = st.EXTENSION_TYPES[resource_extension.group(0)]
                                                         
                             response_header = HTTPParser.parse_http_response_header(file_payload, status_code, type)
-                            client_socket.send(response_header)
+                            client_socket.send(response_header.encode(st.FORMAT))
                             client_socket.send(file_payload)
-                            client_socket.send('\r\n'.encode('utf-8'))
+                            client_socket.send('\r\n'.encode(st.FORMAT))
 
             except socket.timeout as te:
                 pass
@@ -95,7 +96,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 self.logger.warning(exception_type)
                 traceback.print_tb(exception_traceback)                
                 self.logger.info('[THREAD] Function Ended Execution Through Exception!')
-
                 connected = False
 
         if child_request:

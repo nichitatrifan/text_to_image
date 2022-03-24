@@ -70,8 +70,8 @@ def handle_key_exchange(parsed_request:dict):
             }
         status_code = '200 OK'
         response = {
-            'header': HTTPParser.parse_http_response_header(_data, status_code, 'text/html'),
-            'payload': str(json.dumps(_data)).encode('utf-8')
+            'header': HTTPParser.parse_http_response_header(json.dumps(_data), status_code, 'application/json'),
+            'payload': json.dumps(_data)
         }
         return response
     else:
@@ -80,8 +80,8 @@ def handle_key_exchange(parsed_request:dict):
             }
         status_code = '400 Bad Request'
         response = {
-            'header': HTTPParser.parse_http_response(_data, status_code, 'text/html'),
-            'payload': str(json.dumps(_data)).encode('utf-8')
+            'header': HTTPParser.parse_http_response(json.dumps(_data), status_code, 'application/html'),
+            'payload': json.dumps(_data)
         }
         return response
 
@@ -110,7 +110,7 @@ def handle_seed_exchange(parsed_request:dict):
         }
     status_code = '200 OK'
     response = {
-        'header': HTTPParser.parse_http_response_header(_data, status_code, 'text/html'),
-        'payload': str(json.dumps(_data)).encode('utf-8')
+        'header': HTTPParser.parse_http_response_header(json.dumps(_data), status_code, 'application/json'),
+        'payload': str(json.dumps(_data)).encode(st.FORMAT)
         }
     return response

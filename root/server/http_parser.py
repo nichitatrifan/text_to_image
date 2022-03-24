@@ -23,7 +23,7 @@ class HTTPParser:
             f'Content-Type: {type}\r\n'+\
             '\r\n'
         
-        response = response.encode('utf-8')
+        response = response
         return response
 
     @classmethod
