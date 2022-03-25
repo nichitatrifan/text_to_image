@@ -9,7 +9,7 @@ def generate_prime_number(bits):
 def generate_random_number(bits):
     return Crypto.Random.random.getrandbits(bits)
 
-def generate_public_key(n:int, h:int, a:int):
+def generate_public_key(n:int, h:int, a:int): # A = n^a (mod h)
     return pow(n,a,h)
 
 def decode_private_key(B:int, h:int, a:int): # B' = A^b (mod h)

@@ -1,4 +1,3 @@
-import json
 import ast
 
 from datetime import datetime
@@ -8,7 +7,7 @@ class HTTPParser:
         pass
     
     @classmethod
-    def parse_http_response_header(cls, data:bytes, status_code:str, type:str) -> bytes:
+    def parse_http_response_header(cls, data:bytes, status_code:str, type:str) -> str:
         date_obj = datetime.now()
         date = str(date_obj.day) + '_' + str(date_obj.month)  + \
             '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
@@ -23,7 +22,6 @@ class HTTPParser:
             f'Content-Type: {type}\r\n'+\
             '\r\n'
         
-        response = response
         return response
 
     @classmethod
@@ -45,6 +43,7 @@ class HTTPParser:
         text = headers.split('\r\n')
         if body:
             body = body.replace('\r\n', '')
+            print(body)
             body = ast.literal_eval(body)
         else:
             body = {}

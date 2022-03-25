@@ -55,13 +55,13 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
                     if parsed_request:
                         if parsed_request['end_point'] in st.ROUTE_MAP: 
+
                             response_dict = st.ROUTE_MAP[parsed_request['end_point']](
-                                parsed_request
-                                )
-                            client_socket.send(response_dict['header'].encode(st.FORMAT))
-                            print(response_dict['payload'])
-                            client_socket.send(response_dict['payload'].encode(st.FORMAT))
+                                parsed_request)
+                            client_socket.send(response_dict['header'])
+                            client_socket.send(response_dict['payload'])
                             client_socket.send('\r\n'.encode(st.FORMAT))
+
                         else:
                             self.logger.info(parsed_request['end_point'])
                             
@@ -70,13 +70,16 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                                 file_payload = st_file.read()
                             
                             status_code = '200 OK'
-                            type = 'application/javascript'
                             
                             resource_extension = re.search(st.EXTENSION_TYPES_REGEX, parsed_request['end_point'])
-                            type = st.EXTENSION_TYPES[resource_extension.group(0)]
-                                                        
-                            response_header = HTTPParser.parse_http_response_header(file_payload, status_code, type)
-                            client_socket.send(response_header.encode(st.FORMAT))
+                            try:
+                                type = st.EXTENSION_TYPES[resource_extension.group(0)]
+                            except KeyError:
+                                type = '' 
+                                    
+                            response_header = HTTPParser.parse_http_response_header(file_payload, 
+                                status_code, type).encode(st.FORMAT)
+                            client_socket.send(response_header)
                             client_socket.send(file_payload)
                             client_socket.send('\r\n'.encode(st.FORMAT))
 
@@ -87,7 +90,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 self.logger.warning('RESOURCE ' + parsed_request['end_point'] + ' NOT FOUND!') 
 
             except Exception as ex:
-                #TODO the exception is too general! Change Later!
                 exception_type, exception_object, exception_traceback = sys.exc_info()
                 filename = exception_traceback.tb_frame.f_code.co_filename
                 line_number = exception_traceback.tb_lineno

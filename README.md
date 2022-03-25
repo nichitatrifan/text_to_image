@@ -20,3 +20,4 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 - [ ] modify exception handling in request_handler.py
 - [ ] char-map initialization
 - [x] handle requests for JS, CSS, and other http
+- [ ] fix http request parser (limited amount of chars)

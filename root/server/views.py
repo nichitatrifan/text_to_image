@@ -19,7 +19,8 @@ def index(parsed_request:dict) -> str:
 
     status_code = '200 OK'
     response = {
-        'header': HTTPParser.parse_http_response_header(html_text, status_code, 'text/html'),
+        'header': HTTPParser.parse_http_response_header(html_text, 
+                status_code, 'text/html').encode(st.FORMAT),
         'payload': html_text
     }
 
@@ -70,8 +71,9 @@ def handle_key_exchange(parsed_request:dict):
             }
         status_code = '200 OK'
         response = {
-            'header': HTTPParser.parse_http_response_header(json.dumps(_data), status_code, 'application/json'),
-            'payload': json.dumps(_data)
+            'header': HTTPParser.parse_http_response_header(json.dumps(_data),
+                    status_code, 'application/json').encode(st.FORMAT),
+            'payload': json.dumps(_data).encode(st.FORMAT)
         }
         return response
     else:
@@ -80,8 +82,9 @@ def handle_key_exchange(parsed_request:dict):
             }
         status_code = '400 Bad Request'
         response = {
-            'header': HTTPParser.parse_http_response(json.dumps(_data), status_code, 'application/html'),
-            'payload': json.dumps(_data)
+            'header': HTTPParser.parse_http_response(json.dumps(_data),
+                    status_code, 'application/html').encode(st.FORMAT),
+            'payload': json.dumps(_data).encode(st.FORMAT)
         }
         return response
 
@@ -110,7 +113,8 @@ def handle_seed_exchange(parsed_request:dict):
         }
     status_code = '200 OK'
     response = {
-        'header': HTTPParser.parse_http_response_header(json.dumps(_data), status_code, 'application/json'),
+        'header': HTTPParser.parse_http_response_header(json.dumps(_data), 
+                status_code, 'application/json').encode(st.FORMAT),
         'payload': str(json.dumps(_data)).encode(st.FORMAT)
         }
     return response
