@@ -1,7 +1,7 @@
 # SETTINGS FILE
 import os
 
-HEADER = 1024
+PAKCET_SIZE = 8192
 HOST = 'localhost'
 PORT = 5050
 ADDR = (HOST, PORT)

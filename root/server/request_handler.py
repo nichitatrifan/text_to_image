@@ -45,7 +45,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
         while connected and not st.SHUT_DOWN_SERVER and not child_request:
             try:
-                raw_data = client_socket.recv(1024).decode(st.FORMAT)
+                raw_data = client_socket.recv(st.PAKCET_SIZE).decode(st.FORMAT)
                 if raw_data:
 
                     parsed_request = HTTPParser.parse_http_request(raw_data)
