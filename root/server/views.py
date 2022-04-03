@@ -65,6 +65,7 @@ def handle_key_exchange(parsed_request:dict):
                     if not st.CHAR_MAP[key]:
                         st.CHAR_MAP[key] = B_private
                         break
+        print('B private: \n',B_private)
         
         _data = { 
             'B': B_public

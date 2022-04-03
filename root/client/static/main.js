@@ -1,10 +1,11 @@
 const range = [100, 1000];
 let key_map = {
-   "n" : null,
-   "a" : null,
-   "h" : null,
-   "A" : null,
-   "B" : null
+   'n' : null, // n : generator value
+   'a' : null, // a : private exponent
+   'h' : null, // h : modulo
+   'A' : null, // A : public key ( A = n^a (mod h) )
+   'B' : null, // B : received key
+   'APrivate' : null // APrivet : ( A' = B^a (mod h) )
 }
 
 const getPrimes = (min, max) => {
@@ -27,7 +28,10 @@ const getRandomPrime = ([min, max]) => {
 };
 
 const createKeyMap = () => {
-   // create n (generator) values
+   // n : generator value
+   // a : private exponent
+   // h : modulo
+   // A : public key ( A = n^a (mod h) )
    let n = []
    let a = []
    let A = []
@@ -40,9 +44,9 @@ const createKeyMap = () => {
 
       for (let j=0; j<3; j++){
          temp_n[j] = getRandomPrime(range)
-         temp_A[j] = getRandomPrime(range)
          temp_a[j] = getRandomPrime(range)
          temp_h[j] = getRandomPrime(range)
+         temp_A[j] = powerMod(temp_n[j], temp_a[j], temp_h[j])
       }
 
       n.push([temp_n[0],temp_n[1],temp_n[2]])
@@ -67,17 +71,32 @@ const createKeyMap = () => {
    
 };
 
-const getPublicKey = (n, a, h) => {
-   if (modulus === 1) return 0;
-    var result = 1;
-    base = base % modulus;
-    while (exponent > 0) {
-        if (exponent % 2 === 1)  //odd number
-            result = (result * base) % modulus;
-        exponent = exponent >> 1; //divide by 2
-        base = (base * base) % modulus;
+function powerMod(base, exponent, modulo)
+{
+    // Initialize result
+    let res = 1;
+ 
+    // Update x if it is more
+    // than or equal to p
+    base = base % modulo;
+ 
+    if (base == 0)
+        return 0;
+ 
+    while (exponent > 0)
+    {
+        // If exponent is odd, multiply
+        // base with result
+        if (exponent & 1)
+            res = (res * base) % modulo;
+ 
+        // y must be even now
+         
+        // y = $y/2
+        exponent = exponent >> 1;
+        base = (base * base) % modulo;
     }
-    return result;
+    return res;
 };
 
 $(document).ready(function() {
@@ -94,7 +113,8 @@ $(document).ready(function() {
          }),
          statusCode: {
             200: function(data) {
-               console.log(data)
+               key_map['B'] = data['B']
+               console.log(key_map)
             },
             404: function() {
               alert( "page not found" );
