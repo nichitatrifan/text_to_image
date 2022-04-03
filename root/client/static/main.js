@@ -5,7 +5,7 @@ let key_map = {
    'h' : null, // h : modulo
    'A' : null, // A : public key ( A = n^a (mod h) )
    'B' : null, // B : received key
-   'APrivate' : null // APrivet : ( A' = B^a (mod h) )
+   'privateKey' : 'null' // APrivet : ( A' = B^a (mod h) )
 }
 
 const getPrimes = (min, max) => {
@@ -99,6 +99,15 @@ function powerMod(base, exponent, modulo)
     return res;
 };
 
+function showRGBValues(){
+   let resultContainer = $('#result')[0]
+   let newTag = document.createElement('p')
+   let newText = document.createTextNode(key_map['privateKey'])
+
+   newTag.appendChild(newText)
+   resultContainer.appendChild(newTag)
+};
+
 $(document).ready(function() {
    $("#driver").click(function(event){
       createKeyMap()
@@ -114,6 +123,7 @@ $(document).ready(function() {
          statusCode: {
             200: function(data) {
                key_map['B'] = data['B']
+               showRGBValues()
                console.log(key_map)
             },
             404: function() {
