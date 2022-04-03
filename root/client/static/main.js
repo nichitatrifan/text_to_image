@@ -118,12 +118,23 @@ function createPriveKey(){
 }
 
 function showRGBValues(){
-   let resultContainer = $('#result')[0]
-   let newTag = document.createElement('p')
-   let newText = document.createTextNode(keyMap['privateKey'])
+   const resultContainer = $('#result')[0]
+   let tempString = ''
 
-   newTag.appendChild(newText)
-   resultContainer.appendChild(newTag)
+   for (let i=0; i<100; i++){
+      tempString += '[ '+ keyMap['privateKey'][i][0]%200 + ', ' + keyMap['privateKey'][i][1]%200 + 
+         ', ' + keyMap['privateKey'][i][2]%200 + ' ]'
+      if (i!=0 && i%5 === 0){
+         const text = document.createTextNode(tempString)
+         resultContainer.appendChild(text)
+         let brTag = document.createElement('br')
+         resultContainer.appendChild(brTag)
+         tempString = ''
+      }
+      
+   }
+   const text = document.createTextNode(tempString)
+   resultContainer.appendChild(text)
 };
 
 $(document).ready(function() {
