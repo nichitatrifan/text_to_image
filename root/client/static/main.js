@@ -3,7 +3,8 @@ let key_map = {
    "n" : null,
    "a" : null,
    "h" : null,
-   "A" : null
+   "A" : null,
+   "B" : null
 }
 
 const getPrimes = (min, max) => {
@@ -82,7 +83,7 @@ const getPublicKey = (n, a, h) => {
 $(document).ready(function() {
    $("#driver").click(function(event){
       createKeyMap()
-      $.ajax( {
+      $.ajax({
          url:'http://127.0.0.1:5050/key_exchange',
          type: 'POST',
          encoding:"UTF-8",
@@ -91,9 +92,14 @@ $(document).ready(function() {
             "h": key_map['h'],
             "A": key_map['A']
          }),
-         success:function(data) {
-            console.log(data)
-         }
+         statusCode: {
+            200: function(data) {
+               console.log(data)
+            },
+            404: function() {
+              alert( "page not found" );
+            }
+          }
       });
    });
 });

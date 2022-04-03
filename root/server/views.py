@@ -82,7 +82,7 @@ def handle_key_exchange(parsed_request:dict):
             }
         status_code = '400 Bad Request'
         response = {
-            'header': HTTPParser.parse_http_response(json.dumps(_data),
+            'header': HTTPParser.parse_http_response_header(json.dumps(_data),
                     status_code, 'application/html').encode(st.FORMAT),
             'payload': json.dumps(_data).encode(st.FORMAT)
         }
