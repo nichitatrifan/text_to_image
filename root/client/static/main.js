@@ -1,5 +1,5 @@
 const range = [100, 1000];
-let key_map = {
+let keyMap = {
    'n' : null, // n : generator value
    'a' : null, // a : private exponent
    'h' : null, // h : modulo
@@ -64,10 +64,10 @@ const createKeyMap = () => {
    }
 
    console.log("Done")
-   key_map['A'] = A
-   key_map['n'] = n
-   key_map['h'] = h
-   key_map['a'] = a
+   keyMap['A'] = A
+   keyMap['n'] = n
+   keyMap['h'] = h
+   keyMap['a'] = a
    
 };
 
@@ -99,10 +99,28 @@ function powerMod(base, exponent, modulo)
     return res;
 };
 
+function createPriveKey(){
+   privateKey = []
+   tempPrivate = []
+
+   for (let i=0; i<100; i++){
+      for (let j=0; j<3; j++){
+         tempPrivate[j] = powerMod(keyMap['B'][i][j], keyMap['a'][i][j], keyMap['h'][i][j])
+      }
+      privateKey.push([tempPrivate[0], tempPrivate[1], tempPrivate[2]])
+      
+      tempPrivate.pop()
+      tempPrivate.pop()
+      tempPrivate.pop()
+   }
+
+   keyMap['privateKey'] = privateKey
+}
+
 function showRGBValues(){
    let resultContainer = $('#result')[0]
    let newTag = document.createElement('p')
-   let newText = document.createTextNode(key_map['privateKey'])
+   let newText = document.createTextNode(keyMap['privateKey'])
 
    newTag.appendChild(newText)
    resultContainer.appendChild(newTag)
@@ -116,18 +134,19 @@ $(document).ready(function() {
          type: 'POST',
          encoding:"UTF-8",
          data: JSON.stringify({
-            "n": key_map['n'],
-            "h": key_map['h'],
-            "A": key_map['A']
+            "n": keyMap['n'],
+            "h": keyMap['h'],
+            "A": keyMap['A']
          }),
          statusCode: {
             200: function(data) {
-               key_map['B'] = data['B']
+               keyMap['B'] = data['B']
+               createPriveKey()
                showRGBValues()
-               console.log(key_map)
+               console.log(keyMap)
             },
             404: function() {
-              alert( "page not found" );
+              alert( "Something went wrong!" );
             }
           }
       });

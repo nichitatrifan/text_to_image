@@ -21,3 +21,4 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 - [ ] char-map initialization
 - [x] handle requests for JS, CSS, and other http
 - [x] fix http request parser (limited amount of chars)
+- [ ] fix doubling connections from the 'refresh' button
