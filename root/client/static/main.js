@@ -154,6 +154,7 @@ $(document).ready(function() {
                keyMap['B'] = data['B']
                createPriveKey()
                showRGBValues()
+               drawKeyMap()
                console.log(keyMap)
             },
             404: function() {
