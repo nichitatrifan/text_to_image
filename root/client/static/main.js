@@ -153,7 +153,7 @@ $(document).ready(function() {
             200: function(data) {
                keyMap['B'] = data['B']
                createPriveKey()
-               showRGBValues()
+               //showRGBValues()
                drawKeyMap()
                console.log(keyMap)
             },
