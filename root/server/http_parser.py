@@ -20,6 +20,7 @@ class HTTPParser:
             f'Content-Length: {content_len}\r\n' +\
             'Connection: Closed\r\n' +\
             f'Content-Type: {type}\r\n'+\
+            'Access-Control-Allow-Origin: http://localhost:5050\r\n'+\
             '\r\n'
         
         return response
