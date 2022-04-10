@@ -27,6 +27,40 @@ const getRandomPrime = ([min, max]) => {
    return primes[getRandomNum(0, primes.length - 1)];
 };
 
+const getPrimeFactors = (n) => {
+   let s = new Set();
+   while (n % 2 == 0) {
+      s.add(2);
+      n = n / 2;
+   }
+   for (let i = 3; i <= Math.sqrt(n); i = i + 2) {
+      while (n % i == 0) {
+         s.add(i);
+         n = n / i;
+      }
+   }
+   if (n > 2)
+      s.add(n);
+   return s;
+}
+
+const getPrimitive = (n) => {
+   let phi = n - 1;
+   s = getPrimeFactors(phi);
+   for (let r = 2; r <= phi; r++) {
+      let flag = false;
+      for (let it of s) {
+         if (powerMod(r, phi / it, n) == 1) {
+            flag = true;
+            break;
+         }
+      }
+      if (flag == false)
+         return r;
+   }
+   return -1;
+}
+
 const createKeyMap = () => {
    // n : generator value
    // a : private exponent
@@ -43,9 +77,9 @@ const createKeyMap = () => {
    for (let i=0; i<100; i++){
 
       for (let j=0; j<3; j++){
-         temp_n[j] = getRandomPrime(range)
-         temp_a[j] = getRandomPrime(range)
          temp_h[j] = getRandomPrime(range)
+         temp_n[j] = getPrimitive(temp_h[j])
+         temp_a[j] = getRandomNum([1, temp_h[j] - 1])
          temp_A[j] = powerMod(temp_n[j], temp_a[j], temp_h[j])
       }
 

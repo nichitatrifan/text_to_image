@@ -47,7 +47,7 @@ def handle_key_exchange(parsed_request:dict):
             temp_B_private = []
 
             for n, h, A in zip(n_list, h_list, A_list): # unpack to individual values
-                bb = generate_prime_number(N_SIZE)
+                bb = random.randint(1, h - 1)
                 temp_b.append(bb)
                 temp_B_public.append(pow(n,bb,h))
 
@@ -95,7 +95,7 @@ def handle_seed_exchange(parsed_request:dict):
 
     A, n, h =  parsed_request['body']['A'],  parsed_request['body']['n'],  parsed_request['body']['h']
 
-    seed_b_private = generate_prime_number(N_SIZE)
+    seed_b_private = random.randint(1, h - 1)
     seed_B_public = pow(n, seed_b_private, h)
     seed_num = pow(A, seed_b_private, h)
 
