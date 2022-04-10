@@ -13,12 +13,12 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 - [x] key exchange endpoint
 - [x] seed exchange endpoint
 - [ ] add error handling for endpoints
-- [ ] map creation endpoint
+- [x] map creation endpoint
 - [x] add resource path to the settings.py
-- [ ] upgrade to WS endpoint
-- [ ] start frontend
 - [ ] modify exception handling in request_handler.py
 - [ ] char-map initialization
 - [x] handle requests for JS, CSS, and other http
 - [x] fix http request parser (limited amount of chars)
 - [ ] fix doubling connections from the 'refresh' button
+- [ ] upgrade to WS endpoint
+- [ ] CREATE: 'http_request handler' and 'websocket_request_handler' (use headings during the handshake)

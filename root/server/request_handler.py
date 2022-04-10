@@ -48,7 +48,10 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 raw_data = client_socket.recv(st.PAKCET_SIZE).decode(st.FORMAT)
                 if raw_data:
 
-                    parsed_request = HTTPParser.parse_http_request(raw_data)
+                    parsed_request = HTTPParser.parse_http_request(raw_data) #TODO split into http_handler and websocket_handler
+                    # --- split here ---
+
+                    self.logger.info(parsed_request['headers'])
 
                     if 'Referer' in parsed_request['headers']:
                         child_request = True
@@ -105,7 +108,12 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
+    
+    def http_handler(self):
+        pass
 
+    def websocket_handler(self):
+        pass
 
 if __name__ == '__main__':
     pass

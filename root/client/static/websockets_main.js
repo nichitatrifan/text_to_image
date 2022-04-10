@@ -1,7 +1,4 @@
 
-
-const socket = new WebSocket("ws://localhost:8001/");
-
 socket.onopen = function(e) {
   alert("[open] Connection established");
   alert("Sending to server");

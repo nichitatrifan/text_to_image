@@ -151,26 +151,6 @@ function createPriveKey(){
    keyMap['privateKey'] = privateKey
 }
 
-function showRGBValues(){
-   const resultContainer = $('#result')[0]
-   let tempString = ''
-
-   for (let i=0; i<100; i++){
-      tempString += '[ '+ keyMap['privateKey'][i][0]%200 + ', ' + keyMap['privateKey'][i][1]%200 + 
-         ', ' + keyMap['privateKey'][i][2]%200 + ' ]'
-      if (i!=0 && i%5 === 0){
-         const text = document.createTextNode(tempString)
-         resultContainer.appendChild(text)
-         let brTag = document.createElement('br')
-         resultContainer.appendChild(brTag)
-         tempString = ''
-      }
-      
-   }
-   const text = document.createTextNode(tempString)
-   resultContainer.appendChild(text)
-};
-
 $(document).ready(function() {
    $("#driver").click(function(event){
       createKeyMap()
@@ -187,14 +167,17 @@ $(document).ready(function() {
             200: function(data) {
                keyMap['B'] = data['B']
                createPriveKey()
-               //showRGBValues()
                drawKeyMap()
                console.log(keyMap)
             },
             404: function() {
-              alert( "Something went wrong!" );
+              alert( "Something went wrong!" )
             }
           }
-      });
-   });
-});
+      })
+   })
+})
+
+document.getElementById('open-websocket').onclick = function(){
+   const socket = new WebSocket("ws://127.0.0.1:5050/");
+}
