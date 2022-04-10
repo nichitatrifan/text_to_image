@@ -79,7 +79,7 @@ const createKeyMap = () => {
       for (let j=0; j<3; j++){
          temp_h[j] = getRandomPrime(range)
          temp_n[j] = getPrimitive(temp_h[j])
-         temp_a[j] = getRandomNum([1, temp_h[j] - 1])
+         temp_a[j] = getRandomNum(1, temp_h[j] - 1)
          temp_A[j] = powerMod(temp_n[j], temp_a[j], temp_h[j])
       }
 
