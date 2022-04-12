@@ -86,7 +86,22 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
     
-    def http_handler(self, client_socket, parsed_request:dict):
+    def get_static_resource(self, resource_path:str):
+        self.logger.info(resource_path)
+            
+        path = st.STATIC_PATH + resource_path
+        with open(path, 'rb') as st_file:
+            file_payload = st_file.read()
+        
+        resource_extension = re.search(st.EXTENSION_TYPES_REGEX, resource_path)
+        try:
+            resource_type = st.EXTENSION_TYPES[resource_extension.group(0)]
+        except KeyError:
+            resource_type = ''
+
+        return file_payload, resource_type
+        
+    def http_handler(self, client_socket:socket.socket, parsed_request:dict):
         if parsed_request['end_point'] in st.ROUTE_MAP: 
             response_dict = st.ROUTE_MAP[parsed_request['end_point']](
                 parsed_request)
@@ -94,24 +109,13 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             client_socket.send(response_dict['header'])
             client_socket.send(response_dict['payload'])
             client_socket.send('\r\n'.encode(st.FORMAT))
-
         else:
-            self.logger.info(parsed_request['end_point'])
-            
-            path = st.STATIC_PATH + parsed_request['end_point']
-            with open(path, 'rb') as st_file:
-                file_payload = st_file.read()
-            
+            file_payload, resource_type = self.get_static_resource(parsed_request['end_point'])
             status_code = '200 OK'
-            
-            resource_extension = re.search(st.EXTENSION_TYPES_REGEX, parsed_request['end_point'])
-            try:
-                type = st.EXTENSION_TYPES[resource_extension.group(0)]
-            except KeyError:
-                type = '' 
-                    
+
             response_header = HTTPParser.parse_http_response_header(file_payload, 
-                status_code, type).encode(st.FORMAT)
+                status_code, resource_type).encode(st.FORMAT)
+            
             client_socket.send(response_header)
             client_socket.send(file_payload)
             client_socket.send('\r\n'.encode(st.FORMAT))
