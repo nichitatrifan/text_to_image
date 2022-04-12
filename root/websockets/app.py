@@ -1,6 +1,8 @@
 import asyncio
 import websockets
 
+import root.side_modules.settings as st
+
 # handler that manages each connection
 async def handler(websocket):    
     await websocket.send('Hello User!')
@@ -9,7 +11,7 @@ async def handler(websocket):
 
 
 async def main():
-    async with websockets.serve(handler, "", 8001):
+    async with websockets.serve(handler, "", st.PORT):
         await asyncio.Future()  # run forever
 
 if __name__ == "__main__":

@@ -35,7 +35,7 @@ class HTTPParser:
         method_path = method_path.replace('%22','')
         headers, body = headers_body.split('\r\n\r\n', 1)
         
-        end_point = method_path.split(' ')[1]
+        method, end_point, protocol = method_path.split(' ')
         if end_point[-1] == '/':
             end_point_list  = list(end_point)
             end_point_list[-1] = ''
@@ -44,7 +44,7 @@ class HTTPParser:
         text = headers.split('\r\n')
         if body:
             body = body.replace('\r\n', '')
-            print(body)
+            # print(body)                    # printing body
             body = ast.literal_eval(body)
         else:
             body = {}
@@ -55,6 +55,8 @@ class HTTPParser:
             head_dict[key] = value
         
         return_data = {
+            'method' : method,
+            'protocol' : protocol,
             'end_point': str(end_point),
             'headers': head_dict,
             'body': body

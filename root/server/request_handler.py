@@ -48,43 +48,20 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 raw_data = client_socket.recv(st.PAKCET_SIZE).decode(st.FORMAT)
                 if raw_data:
 
-                    parsed_request = HTTPParser.parse_http_request(raw_data) #TODO split into http_handler and websocket_handler
+                    parsed_request = HTTPParser.parse_http_request(raw_data)
+                    #TODO split into http_handler and websocket_handler
                     # --- split here ---
-
-                    self.logger.info(parsed_request['headers'])
-
+                    # self.logger.info(parsed_request['method'])
+                    # self.logger.info(parsed_request['headers'])
+                    
                     if 'Referer' in parsed_request['headers']:
                         child_request = True
-
+                    
                     if parsed_request:
-                        if parsed_request['end_point'] in st.ROUTE_MAP: 
-
-                            response_dict = st.ROUTE_MAP[parsed_request['end_point']](
-                                parsed_request)
-                            client_socket.send(response_dict['header'])
-                            client_socket.send(response_dict['payload'])
-                            client_socket.send('\r\n'.encode(st.FORMAT))
-
-                        else:
-                            self.logger.info(parsed_request['end_point'])
-                            
-                            path = st.STATIC_PATH + parsed_request['end_point']
-                            with open(path, 'rb') as st_file:
-                                file_payload = st_file.read()
-                            
-                            status_code = '200 OK'
-                            
-                            resource_extension = re.search(st.EXTENSION_TYPES_REGEX, parsed_request['end_point'])
-                            try:
-                                type = st.EXTENSION_TYPES[resource_extension.group(0)]
-                            except KeyError:
-                                type = '' 
-                                    
-                            response_header = HTTPParser.parse_http_response_header(file_payload, 
-                                status_code, type).encode(st.FORMAT)
-                            client_socket.send(response_header)
-                            client_socket.send(file_payload)
-                            client_socket.send('\r\n'.encode(st.FORMAT))
+                        if 'HTTP' in parsed_request['protocol'].upper():
+                            self.http_handler(client_socket, parsed_request)
+                        elif 'WS' in parsed_request['protocol'].upper():
+                            self.websocket_handler(client_socket, parsed_request)
 
             except socket.timeout as te:
                 pass
@@ -109,8 +86,35 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         self.logger.info('[THREAD] Function Ended Execution')
         return 1
     
-    def http_handler(self):
-        pass
+    def http_handler(self, client_socket, parsed_request:dict):
+        if parsed_request['end_point'] in st.ROUTE_MAP: 
+            response_dict = st.ROUTE_MAP[parsed_request['end_point']](
+                parsed_request)
+            
+            client_socket.send(response_dict['header'])
+            client_socket.send(response_dict['payload'])
+            client_socket.send('\r\n'.encode(st.FORMAT))
+
+        else:
+            self.logger.info(parsed_request['end_point'])
+            
+            path = st.STATIC_PATH + parsed_request['end_point']
+            with open(path, 'rb') as st_file:
+                file_payload = st_file.read()
+            
+            status_code = '200 OK'
+            
+            resource_extension = re.search(st.EXTENSION_TYPES_REGEX, parsed_request['end_point'])
+            try:
+                type = st.EXTENSION_TYPES[resource_extension.group(0)]
+            except KeyError:
+                type = '' 
+                    
+            response_header = HTTPParser.parse_http_response_header(file_payload, 
+                status_code, type).encode(st.FORMAT)
+            client_socket.send(response_header)
+            client_socket.send(file_payload)
+            client_socket.send('\r\n'.encode(st.FORMAT))
 
     def websocket_handler(self):
         pass
