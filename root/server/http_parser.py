@@ -26,7 +26,7 @@ class HTTPParser:
         return response
 
     @classmethod
-    def parse_http_request(cls, raw_data) -> dict:
+    def parse_http_request(cls, raw_data) -> dict[str, str]:
         """ Parses HTTP request """
         if not raw_data:
             return None
@@ -52,6 +52,7 @@ class HTTPParser:
         head_dict = {}
         for element in text:
             key, value = element.split(':',1) #TODO replace the initial space
+            value = value.replace(' ', '', 1)
             head_dict[key] = value
         
         return_data = {

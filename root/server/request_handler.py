@@ -49,16 +49,21 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 if raw_data:
 
                     parsed_request = HTTPParser.parse_http_request(raw_data)
-                    #TODO split into http_handler and websocket_handler
-                    # --- split here ---
-                    # self.logger.info(parsed_request['method'])
-                    # self.logger.info(parsed_request['headers'])
-                    
-                    if 'Referer' in parsed_request['headers']:
-                        child_request = True
-                    
+
                     if parsed_request:
-                        if 'HTTP' in parsed_request['protocol'].upper():
+                        self.logger.info(parsed_request['method'] + ' ' + parsed_request['protocol'])
+                        self.logger.info(parsed_request['headers'])
+                        
+                        if 'Referer' in parsed_request['headers']:
+                            child_request = True
+                        
+                        if 'UPGRADE' in parsed_request['headers']['Connection'].upper():
+                            response_dict = st.ROUTE_MAP['/upgrade-ws'](
+                                parsed_request)
+                            client_socket.send(response_dict['header'])
+                            # client_socket.send(response_dict['payload'])
+                            client_socket.send('\r\n'.encode(st.FORMAT))  
+                        elif 'HTTP' in parsed_request['protocol'].upper():
                             self.http_handler(client_socket, parsed_request)
                         elif 'WS' in parsed_request['protocol'].upper():
                             self.websocket_handler(client_socket, parsed_request)

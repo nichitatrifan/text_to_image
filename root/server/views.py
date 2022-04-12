@@ -1,8 +1,10 @@
 import json
 import string
 import random
+import hashlib as hash
 import root.side_modules.settings as st
 
+from datetime import datetime
 from root.server.router import Router
 from root.server.http_parser import HTTPParser
 from root.side_modules.number import *
@@ -119,3 +121,48 @@ def handle_seed_exchange(parsed_request:dict):
         'payload': str(json.dumps(_data)).encode(st.FORMAT)
         }
     return response
+
+# response to upgrade
+# connection to websocket
+#
+#
+# HTTP/1.1 101 Switching Protocols
+# Upgrade: websocket
+# Connection: Upgrade
+# Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+#
+#
+# need to send the chat page as well
+#
+# compute the secret accpet header:
+#   1) concatenate with '258EAFA5-E914-47DA-95CA-C5AB0DC85B11' (magic string)
+#   2) perform SHA-1 (hashing algorithm)
+
+@Router('/upgrade-ws')
+def upgrade_to_ws(parsed_request:dict):
+    secret_key = parsed_request['headers']['Sec-WebSocket-Key']
+    secret_key = secret_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
+    secret_key = hash.sha1(secret_key.encode(st.FORMAT))
+    
+    date_obj = datetime.now()
+    date = str(date_obj.day) + '_' + str(date_obj.month)  + \
+        '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
+        '_' + str(date_obj.second)
+
+    response_headers = 'HTTP/1.1 101 Switching Protocols\r\n' +\
+            f'Date: {date}\r\n' +\
+            'Server: localhost\r\n' +\
+            'Content-Length: 0\r\n' +\
+            'Upgrade: websocket\r\n' +\
+            'Connection: Upgrade\r\n' +\
+            f'Sec-WebSocket-Accept: {secret_key}\r\n' +\
+            f'Content-Type: text/html\r\n'+\
+            'Access-Control-Allow-Origin: http://localhost:5050\r\n'+\
+            '\r\n'
+            
+    response = {
+        'header': response_headers.encode(st.FORMAT),
+        'payload': ''
+    }
+    
+    return response    
