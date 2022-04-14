@@ -1,3 +1,4 @@
+const socket = new WebSocket("ws://127.0.0.1:5051/");
 
 socket.onopen = function(e) {
   alert("[open] Connection established");

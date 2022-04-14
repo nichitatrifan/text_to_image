@@ -122,6 +122,21 @@ def handle_seed_exchange(parsed_request:dict):
         }
     return response
 
+@Router('/open_chat')
+def open_chat(parsed_request:dict):
+    resource_path = st.STATIC_PATH + '/websockets_index.html'
+
+    with open(resource_path, 'rb') as fl:
+        html_text = fl.read()
+
+    status_code = '200 OK'
+    response = {
+        'header': HTTPParser.parse_http_response_header(html_text, 
+                status_code, 'text/html').encode(st.FORMAT),
+        'payload': html_text
+    }
+    return response
+
 # response to upgrade
 # connection to websocket
 #
@@ -139,32 +154,3 @@ def handle_seed_exchange(parsed_request:dict):
 #   2) perform SHA-1 (hashing algorithm)
 #
 #  WebSocket extensions and subprotocols are negotiated via headers during the handshake.
-
-@Router('/upgrade-ws')
-def upgrade_to_ws(parsed_request:dict):
-    secret_key = parsed_request['headers']['Sec-WebSocket-Key']
-    secret_key = secret_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
-    secret_key = hash.sha1(secret_key.encode(st.FORMAT))
-    
-    date_obj = datetime.now()
-    date = str(date_obj.day) + '_' + str(date_obj.month)  + \
-        '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
-        '_' + str(date_obj.second)
-
-    response_headers = 'HTTP/1.1 101 Switching Protocols\r\n' +\
-            f'Date: {date}\r\n' +\
-            'Server: localhost\r\n' +\
-            'Content-Length: 0\r\n' +\
-            'Upgrade: websocket\r\n' +\
-            'Connection: Upgrade\r\n' +\
-            f'Sec-WebSocket-Accept: {secret_key}\r\n' +\
-            f'Content-Type: text/html\r\n'+\
-            'Access-Control-Allow-Origin: http://localhost:5050\r\n'+\
-            '\r\n'
-            
-    response = {
-        'header': response_headers.encode(st.FORMAT),
-        'payload': ''
-    }
-    
-    return response    

@@ -4,6 +4,7 @@ import os
 PAKCET_SIZE = 8192
 HOST = 'localhost'
 PORT = 5050
+WS_PORT = 5051
 ADDR = (HOST, PORT)
 
 FORMAT = 'utf-8'

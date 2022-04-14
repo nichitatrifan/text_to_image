@@ -1,21 +1,14 @@
 import asyncio
 import websockets
 
-import root.side_modules.settings as st
+from root.side_modules.settings import *
 
-# handler that manages each connection
-async def handler(websocket):    
+async def handler(websocket):
+    print('Connection added...')
     await websocket.send('Hello User!')
     async for message in websocket:
         print(message)
 
-
 async def main():
-    async with websockets.serve(handler, "", st.PORT):
+    async with websockets.serve(handler, HOST, WS_PORT):
         await asyncio.Future()  # run forever
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt as ex:
-            print('KeyboardInterrupt')

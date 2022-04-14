@@ -3,7 +3,6 @@ import socket
 import sys
 import traceback
 import re
-import asyncio
 
 import root.side_modules.settings as st
 
@@ -53,16 +52,13 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                     parsed_request = HTTPParser.parse_http_request(raw_data)
 
                     if parsed_request:
-                        self.logger.info(parsed_request['method'] + ' ' + parsed_request['protocol'])
+                        self.logger.info(parsed_request['method'] + ' ' + parsed_request['end_point'] + ' ' + parsed_request['protocol'])
                         self.logger.info(parsed_request['headers'])
                         
                         if 'Referer' in parsed_request['headers']:
                             child_request = True
                         
-                        if 'UPGRADE' in parsed_request['headers']['Connection'].upper():
-                            self.websocket_handler(client_socket, parsed_request)
-                        elif 'HTTP' in parsed_request['protocol'].upper():
-                            self.http_handler(client_socket, parsed_request)
+                        self.http_handler(client_socket, parsed_request)
 
             except socket.timeout as te:
                 pass
