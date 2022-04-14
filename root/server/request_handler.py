@@ -3,12 +3,14 @@ import socket
 import sys
 import traceback
 import re
+import asyncio
 
 import root.side_modules.settings as st
 
 from root.server.logger import Logger
 from root.server.http_parser import HTTPParser
 from root.server.views import *
+from root.websockets.app import main as ws_main
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request, client_address, server) -> None:
@@ -58,15 +60,9 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                             child_request = True
                         
                         if 'UPGRADE' in parsed_request['headers']['Connection'].upper():
-                            response_dict = st.ROUTE_MAP['/upgrade-ws'](
-                                parsed_request)
-                            client_socket.send(response_dict['header'])
-                            # client_socket.send(response_dict['payload'])
-                            client_socket.send('\r\n'.encode(st.FORMAT))  
+                            self.websocket_handler(client_socket, parsed_request)
                         elif 'HTTP' in parsed_request['protocol'].upper():
                             self.http_handler(client_socket, parsed_request)
-                        elif 'WS' in parsed_request['protocol'].upper():
-                            self.websocket_handler(client_socket, parsed_request)
 
             except socket.timeout as te:
                 pass
@@ -125,7 +121,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             client_socket.send(file_payload)
             client_socket.send('\r\n'.encode(st.FORMAT))
 
-    def websocket_handler(self):
+    async def websocket_handler(self):
         pass
 
 if __name__ == '__main__':

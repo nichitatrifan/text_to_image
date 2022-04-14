@@ -178,6 +178,7 @@ $(document).ready(function() {
    })
 })
 
+// headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
    const socket = new WebSocket("ws://127.0.0.1:5050/");
 }

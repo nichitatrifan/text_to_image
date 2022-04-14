@@ -137,6 +137,8 @@ def handle_seed_exchange(parsed_request:dict):
 # compute the secret accpet header:
 #   1) concatenate with '258EAFA5-E914-47DA-95CA-C5AB0DC85B11' (magic string)
 #   2) perform SHA-1 (hashing algorithm)
+#
+#  WebSocket extensions and subprotocols are negotiated via headers during the handshake.
 
 @Router('/upgrade-ws')
 def upgrade_to_ws(parsed_request:dict):
