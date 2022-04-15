@@ -12,3 +12,10 @@ async def handler(websocket):
 async def main():
     async with websockets.serve(handler, HOST, WS_PORT):
         await asyncio.Future()  # run forever
+
+if __name__ == "__main__":
+    print('WS is being listened on: ' + '127.0.0.1:5051')
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt as ex:
+            print('KeyboardInterrupt')

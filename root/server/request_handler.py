@@ -3,18 +3,29 @@ import socket
 import sys
 import traceback
 import re
+import asyncio
 
 import root.side_modules.settings as st
 
 from root.server.logger import Logger
 from root.server.http_parser import HTTPParser
 from root.server.views import *
-from root.websockets.app import main as ws_main
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request, client_address, server) -> None:
         Logger.__init__(self)
-        super().__init__(request, client_address, server)
+        #super().__init__(request, client_address, server)
+
+        process_loop = asyncio.new_event_loop()
+
+        self.request = request
+        self.client_address = client_address
+        self.server = server
+        self.setup()
+        try:
+            process_loop.run_until_complete(self.handle())
+        finally:
+            self.finish()
 
     def add_to_client_pool(self, client_ip, client_port):
         addresses = st.CONNECTED_CLIENTS.keys()
@@ -31,7 +42,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             st.CONNECTED_CLIENTS[client_ip].remove(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
 
-    def handle(self):
+    async def handle(self):
         client_socket = self.request
         client_socket.settimeout(0.5)
 
@@ -55,6 +66,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                         self.logger.info(parsed_request['method'] + ' ' + parsed_request['end_point'] + ' ' + parsed_request['protocol'])
                         self.logger.info(parsed_request['headers'])
                         
+
+
                         if 'Referer' in parsed_request['headers']:
                             child_request = True
                         
@@ -116,9 +129,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             client_socket.send(response_header)
             client_socket.send(file_payload)
             client_socket.send('\r\n'.encode(st.FORMAT))
-
-    async def websocket_handler(self):
-        pass
 
 if __name__ == '__main__':
     pass
