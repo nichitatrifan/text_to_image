@@ -16,14 +16,14 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         Logger.__init__(self)
         #super().__init__(request, client_address, server)
 
-        process_loop = asyncio.new_event_loop()
+        self.process_loop = asyncio.new_event_loop()
 
         self.request = request
         self.client_address = client_address
         self.server = server
         self.setup()
         try:
-            process_loop.run_until_complete(self.handle())
+            self.process_loop.run_until_complete(self.handle())
         finally:
             self.finish()
 
@@ -62,16 +62,18 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
                     parsed_request = HTTPParser.parse_http_request(raw_data)
 
-                    if parsed_request:
-                        self.logger.info(parsed_request['method'] + ' ' + parsed_request['end_point'] + ' ' + parsed_request['protocol'])
-                        self.logger.info(parsed_request['headers'])
-                        
+                    self.logger.info(parsed_request['method'] + ' ' + parsed_request['end_point'] + ' ' + parsed_request['protocol'])
+                    self.logger.info(parsed_request['headers'])
 
+                    if 'Upgrade' in parsed_request['headers']:
+                        ws_handler = self.process_loop.create_task(self.websocket_handler(client_socket, parsed_request))
+                        await asyncio.wait([ws_handler])
 
-                        if 'Referer' in parsed_request['headers']:
-                            child_request = True
-                        
-                        self.http_handler(client_socket, parsed_request)
+                    if 'Referer' in parsed_request['headers']:
+                        child_request = True
+                    
+                    http_handler = self.process_loop.create_task(self.http_handler(client_socket, parsed_request))
+                    await asyncio.wait([http_handler])
 
             except socket.timeout as te:
                 pass
@@ -111,7 +113,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
         return file_payload, resource_type
         
-    def http_handler(self, client_socket:socket.socket, parsed_request:dict):
+    async def http_handler(self, client_socket:socket.socket, parsed_request:dict):
         if parsed_request['end_point'] in st.ROUTE_MAP: 
             response_dict = st.ROUTE_MAP[parsed_request['end_point']](
                 parsed_request)
@@ -129,6 +131,9 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             client_socket.send(response_header)
             client_socket.send(file_payload)
             client_socket.send('\r\n'.encode(st.FORMAT))
+
+    async def websocket_handler(self, client_socket:socket.socket, parsed_request:dict):
+        pass
 
 if __name__ == '__main__':
     pass
