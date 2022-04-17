@@ -165,44 +165,12 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 'Access-Control-Allow-Origin: http://localhost:5050\r\n'+\
                 '\r\n'
         client_socket.send(response_headers.encode(st.FORMAT))
-        client_socket.send(''.encode(st.FORMAT))
-        client_socket.send('\r\n'.encode(st.FORMAT))
-
-
-    def decode_ws_frame(self,frame):
-        opcode_and_fin = frame[0]
-
-        # assuming it's masked, hence removing the mask bit(MSB) to get len. also assuming len is <125
-        payload_len = frame[1] - 128
-
-        mask = frame [2:6]
-        encrypted_payload = frame [6: 6+payload_len]
-
-        payload = bytearray([ encrypted_payload[i] ^ mask[i%4] for i in range(payload_len)])
-
-        return payload
-    
-    def send_ws_frame(self, payload):
-        # setting fin to 1 and opcpde to 0x1
-        frame = [129]
-        # adding len. no masking hence not doing +128
-        frame += [len(payload)]
-        # adding payload
-        frame_to_send = bytearray(frame) + payload
-        self.request.sendall(frame_to_send)
 
     async def websocket_handler(self, client_socket:socket.socket, parsed_request:dict):
         while not st.SHUT_DOWN_SERVER:
             raw_data = self.request.recv(1024)
-
             if raw_data:
                 self.logger.info('DATA: \n' + raw_data.decode(st.FORMAT))
-                payload = self.decode_ws_frame(bytearray())
-                decoded_payload = payload.decode('utf-8')
-                self.send_ws_frame(payload)
-                if "bye" == decoded_payload.lower():
-                    "Bidding goodbye to our client..."
-                    return
 
 if __name__ == '__main__':
     pass
