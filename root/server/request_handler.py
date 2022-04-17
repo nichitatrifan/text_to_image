@@ -4,6 +4,8 @@ import sys
 import traceback
 import re
 import asyncio
+import hashlib
+import base64
 
 import root.side_modules.settings as st
 
@@ -12,7 +14,7 @@ from root.server.http_parser import HTTPParser
 from root.server.views import *
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
-    def __init__(self, request, client_address, server) -> None:
+    def __init__(self, request:socket, client_address, server) -> None:
         Logger.__init__(self)
         #super().__init__(request, client_address, server)
 
@@ -63,17 +65,22 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                     parsed_request = HTTPParser.parse_http_request(raw_data)
 
                     self.logger.info(parsed_request['method'] + ' ' + parsed_request['end_point'] + ' ' + parsed_request['protocol'])
-                    self.logger.info(parsed_request['headers'])
+                    # self.logger.info(parsed_request['headers'])
 
-                    if 'Upgrade' in parsed_request['headers']:
-                        ws_handler = self.process_loop.create_task(self.websocket_handler(client_socket, parsed_request))
-                        await asyncio.wait([ws_handler])
+                    if 'Upgrade' in parsed_request['headers'] and 'websocket' in parsed_request['headers']['Upgrade']:
+                       # 1) accepting the handshake
+                       #    - getting the key
+                       key = parsed_request['headers']['Sec-WebSocket-Key']
+                       self.websocket_hadnshake(client_socket, key)
 
-                    if 'Referer' in parsed_request['headers']:
-                        child_request = True
-                    
-                    http_handler = self.process_loop.create_task(self.http_handler(client_socket, parsed_request))
-                    await asyncio.wait([http_handler])
+                       ws_handler = self.process_loop.create_task(self.websocket_handler(client_socket, parsed_request))
+                       await asyncio.wait([ws_handler])
+                    else:
+                        if 'Referer' in parsed_request['headers']:
+                            child_request = True
+
+                        http_handler = self.process_loop.create_task(self.http_handler(client_socket, parsed_request))
+                        await asyncio.wait([http_handler])
 
             except socket.timeout as te:
                 pass
@@ -99,7 +106,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         return 1
     
     def get_static_resource(self, resource_path:str):
-        self.logger.info(resource_path)
+        # self.logger.info(resource_path)
             
         path = st.STATIC_PATH + resource_path
         with open(path, 'rb') as st_file:
@@ -131,9 +138,71 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             client_socket.send(response_header)
             client_socket.send(file_payload)
             client_socket.send('\r\n'.encode(st.FORMAT))
+    
+    def websocket_hadnshake(self,client_socket:socket.socket, key:str):
+        # calculating response as per protocol RFC
+        self.logger.info('key:' + key.strip())
+        GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
+        hash = hashlib.sha1(key.encode() + GUID.encode())
+        response_key = base64.b64encode(hash.digest()).strip()
+        response_key = response_key.decode('ASCII')
+
+        self.logger.info(response_key)
+
+        date_obj = datetime.now()
+        date = str(date_obj.day) + '_' + str(date_obj.month)  + \
+            '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
+            '_' + str(date_obj.second)
+
+        response_headers = 'HTTP/1.1 101 Switching Protocols\r\n' +\
+                f'Date: {date}\r\n' +\
+                'Server: localhost\r\n' +\
+                'Content-Length: 0\r\n' +\
+                'Upgrade: websocket\r\n' +\
+                'Connection: Upgrade\r\n' +\
+                f'Sec-WebSocket-Accept: {response_key}\r\n' +\
+                f'Content-Type: text/html\r\n'+\
+                'Access-Control-Allow-Origin: http://localhost:5050\r\n'+\
+                '\r\n'
+        client_socket.send(response_headers.encode(st.FORMAT))
+        client_socket.send(''.encode(st.FORMAT))
+        client_socket.send('\r\n'.encode(st.FORMAT))
+
+
+    def decode_ws_frame(self,frame):
+        opcode_and_fin = frame[0]
+
+        # assuming it's masked, hence removing the mask bit(MSB) to get len. also assuming len is <125
+        payload_len = frame[1] - 128
+
+        mask = frame [2:6]
+        encrypted_payload = frame [6: 6+payload_len]
+
+        payload = bytearray([ encrypted_payload[i] ^ mask[i%4] for i in range(payload_len)])
+
+        return payload
+    
+    def send_ws_frame(self, payload):
+        # setting fin to 1 and opcpde to 0x1
+        frame = [129]
+        # adding len. no masking hence not doing +128
+        frame += [len(payload)]
+        # adding payload
+        frame_to_send = bytearray(frame) + payload
+        self.request.sendall(frame_to_send)
 
     async def websocket_handler(self, client_socket:socket.socket, parsed_request:dict):
-        pass
+        while not st.SHUT_DOWN_SERVER:
+            raw_data = self.request.recv(1024)
+
+            if raw_data:
+                self.logger.info('DATA: \n' + raw_data.decode(st.FORMAT))
+                payload = self.decode_ws_frame(bytearray())
+                decoded_payload = payload.decode('utf-8')
+                self.send_ws_frame(payload)
+                if "bye" == decoded_payload.lower():
+                    "Bidding goodbye to our client..."
+                    return
 
 if __name__ == '__main__':
     pass

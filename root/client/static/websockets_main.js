@@ -1,9 +1,9 @@
-const socket = new WebSocket("ws://127.0.0.1:5051/");
+let socket = new WebSocket("ws://127.0.0.1:5050/");
 
 socket.onopen = function(e) {
   alert("[open] Connection established");
-  alert("Sending to server");
-  socket.send("My name is John");
+  //alert("Sending to server");
+  //socket.send("My name is John");
 };
 
 function sendText() {
