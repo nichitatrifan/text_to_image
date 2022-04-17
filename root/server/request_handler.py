@@ -68,19 +68,13 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                     # self.logger.info(parsed_request['headers'])
 
                     if 'Upgrade' in parsed_request['headers'] and 'websocket' in parsed_request['headers']['Upgrade']:
-                       # 1) accepting the handshake
-                       #    - getting the key
                        key = parsed_request['headers']['Sec-WebSocket-Key']
                        self.websocket_hadnshake(client_socket, key)
-
-                       ws_handler = self.process_loop.create_task(self.websocket_handler(client_socket, parsed_request))
-                       await asyncio.wait([ws_handler])
+                       self.websocket_handler(client_socket)
                     else:
                         if 'Referer' in parsed_request['headers']:
                             child_request = True
-
-                        http_handler = self.process_loop.create_task(self.http_handler(client_socket, parsed_request))
-                        await asyncio.wait([http_handler])
+                        self.http_handler(client_socket, parsed_request)
 
             except socket.timeout as te:
                 pass
@@ -120,7 +114,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
         return file_payload, resource_type
         
-    async def http_handler(self, client_socket:socket.socket, parsed_request:dict):
+    def http_handler(self, client_socket:socket.socket, parsed_request:dict):
         if parsed_request['end_point'] in st.ROUTE_MAP: 
             response_dict = st.ROUTE_MAP[parsed_request['end_point']](
                 parsed_request)
@@ -166,11 +160,11 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
                 '\r\n'
         client_socket.send(response_headers.encode(st.FORMAT))
 
-    async def websocket_handler(self, client_socket:socket.socket, parsed_request:dict):
+    def websocket_handler(self, client_socket:socket.socket):
         while not st.SHUT_DOWN_SERVER:
             raw_data = self.request.recv(1024)
             if raw_data:
-                self.logger.info('DATA: \n' + raw_data.decode(st.FORMAT))
+                print(raw_data)
 
 if __name__ == '__main__':
     pass
