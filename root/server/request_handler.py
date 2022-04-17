@@ -25,7 +25,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
         self.server = server
         self.setup()
         try:
-            self.process_loop.run_until_complete(self.handle())
+            self.handle()
         finally:
             self.finish()
 
@@ -44,7 +44,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             st.CONNECTED_CLIENTS[client_ip].remove(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))
 
-    async def handle(self):
+    def handle(self):
         client_socket = self.request
         client_socket.settimeout(0.5)
 
@@ -66,15 +66,9 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
 
                     self.logger.info(parsed_request['method'] + ' ' + parsed_request['end_point'] + ' ' + parsed_request['protocol'])
                     # self.logger.info(parsed_request['headers'])
-
-                    if 'Upgrade' in parsed_request['headers'] and 'websocket' in parsed_request['headers']['Upgrade']:
-                       key = parsed_request['headers']['Sec-WebSocket-Key']
-                       self.websocket_hadnshake(client_socket, key)
-                       self.websocket_handler(client_socket)
-                    else:
-                        if 'Referer' in parsed_request['headers']:
-                            child_request = True
-                        self.http_handler(client_socket, parsed_request)
+                    if 'Referer' in parsed_request['headers']:
+                        child_request = True
+                    self.http_handler(client_socket, parsed_request)
 
             except socket.timeout as te:
                 pass
@@ -132,39 +126,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             client_socket.send(response_header)
             client_socket.send(file_payload)
             client_socket.send('\r\n'.encode(st.FORMAT))
-    
-    def websocket_hadnshake(self,client_socket:socket.socket, key:str):
-        # calculating response as per protocol RFC
-        self.logger.info('key:' + key.strip())
-        GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
-        hash = hashlib.sha1(key.encode() + GUID.encode())
-        response_key = base64.b64encode(hash.digest()).strip()
-        response_key = response_key.decode('ASCII')
-
-        self.logger.info(response_key)
-
-        date_obj = datetime.now()
-        date = str(date_obj.day) + '_' + str(date_obj.month)  + \
-            '_' + str(date_obj.year) + '_' + str(date_obj.hour) + '_' + str(date_obj.minute) +\
-            '_' + str(date_obj.second)
-
-        response_headers = 'HTTP/1.1 101 Switching Protocols\r\n' +\
-                f'Date: {date}\r\n' +\
-                'Server: localhost\r\n' +\
-                'Content-Length: 0\r\n' +\
-                'Upgrade: websocket\r\n' +\
-                'Connection: Upgrade\r\n' +\
-                f'Sec-WebSocket-Accept: {response_key}\r\n' +\
-                f'Content-Type: text/html\r\n'+\
-                'Access-Control-Allow-Origin: http://localhost:5050\r\n'+\
-                '\r\n'
-        client_socket.send(response_headers.encode(st.FORMAT))
-
-    def websocket_handler(self, client_socket:socket.socket):
-        while not st.SHUT_DOWN_SERVER:
-            raw_data = self.request.recv(1024)
-            if raw_data:
-                print(raw_data)
 
 if __name__ == '__main__':
     pass

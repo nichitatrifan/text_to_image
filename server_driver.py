@@ -3,19 +3,23 @@ import threading
 from root.server.request_handler import ThreadedTCPRequestHandler
 from root.server.thread_server import *
 from root.side_modules.settings import *
+from root.websockets.app import start_ws
 
 if __name__ == "__main__":
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
     ip, port = server.server_address
     server.logger.info(f'LISTENNING {HOST} {PORT}')
 
-    with server:    
+    with server:
         # Start a thread with the server -- that thread will then start other threads
         # one thread for one client connection
         try:
             server_thread = threading.Thread(target=server.serve_forever, args=(0.5,))
             server_thread.daemon = True
             server_thread.start()
+
+            websocket_thread = threading.Thread(target=start_ws)
+            websocket_thread.start()
 
             while server_thread.is_alive():
                 server_thread.join(1.0) # waits until the thread terminates
@@ -24,5 +28,6 @@ if __name__ == "__main__":
         except KeyboardInterrupt as kyi:
             server.logger.warning('KeyBoard Interrupt')
             server.signal_shut_down()
+            websocket_thread.join()
             server.shutdown()
             
