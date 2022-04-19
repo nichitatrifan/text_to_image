@@ -1,7 +1,7 @@
 
 # TEXT TO IMAGE ENCRYPTION
 
-In this project I implemented the text-to-image encryption. The main idea is to assgin a unic RGB value for every char that can be used to 
+In this project we implemented the text-to-image encryption. The main idea is to assgin a unic RGB value for every char that can be used to 
 exchange the user's information across the network.
 
 Cool thing about this project that the whole backend is being written from a scratch without using any popular frameworks like
@@ -20,5 +20,4 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 - [x] handle requests for JS, CSS, and other http
 - [x] fix http request parser (limited amount of chars)
 - [ ] fix doubling connections from the 'refresh' button
-- [ ] upgrade to WS endpoint
-- [ ] CREATE: 'http_request handler' and 'websocket_request_handler' (use headings during the handshake)
+- [x] upgrade to WS endpoint
