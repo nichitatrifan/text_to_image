@@ -122,6 +122,54 @@ def handle_seed_exchange(parsed_request:dict):
         }
     return response
 
+@Router('/cop_exchange')
+def handle_cop_exchange(parsed_request:dict):
+    """ Handles the cop exchange between the client and server """
+
+    # check what info is in the dict
+    if parsed_request['body']:
+        n_data = parsed_request['body']['n']
+        h_data = parsed_request['body']['h']
+        A_data = parsed_request['body']['A']
+
+        b = []
+        B_public = []
+        B_private = []
+
+        for n, h, A in zip(n_data, h_data, A_data): # unpack to individual values
+            bb = random.randint(1, h - 1)
+            b.append(bb)
+            B_public.append(pow(n,bb,h))
+            B_private.append(str(pow(A, bb, h) % 55)) # B' = A^b (mod h)
+
+        # add cop values to char map
+        if B_private:
+            for key in st.CHAR_MAP:
+                st.CHAR_MAP[key] = [sum(B) for B in zip(st.CHAR_MAP[key], B_private)]
+        
+        _data = { 
+            'B': B_public
+            }
+        status_code = '200 OK'
+        response = {
+            'header': HTTPParser.parse_http_response_header(json.dumps(_data),
+                    status_code, 'application/json').encode(st.FORMAT),
+            'payload': json.dumps(_data).encode(st.FORMAT)
+        }
+        return response
+    
+    else:
+        _data = { 
+            'B': 'None'
+            }
+        status_code = '400 Bad Request'
+        response = {
+            'header': HTTPParser.parse_http_response_header(json.dumps(_data),
+                    status_code, 'application/html').encode(st.FORMAT),
+            'payload': json.dumps(_data).encode(st.FORMAT)
+        }
+        return response
+
 @Router('/open_chat')
 def open_chat(parsed_request:dict):
     resource_path = st.STATIC_PATH + '/websockets_index.html'
