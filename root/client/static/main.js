@@ -139,7 +139,7 @@ function createPriveKey(){
 
    for (let i=0; i<100; i++){
       for (let j=0; j<3; j++){
-         tempPrivate[j] = powerMod(keyMap['B'][i][j], keyMap['a'][i][j], keyMap['h'][i][j])
+         tempPrivate[j] = powerMod(keyMap['B'][i][j], keyMap['a'][i][j], keyMap['h'][i][j]) % 200
       }
       privateKey.push([tempPrivate[0], tempPrivate[1], tempPrivate[2]])
       
