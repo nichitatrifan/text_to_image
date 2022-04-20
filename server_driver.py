@@ -4,16 +4,18 @@ import websockets
 import time
 
 from root.server.request_handler import ThreadedTCPRequestHandler
+from root.server.logger import Logger
 from root.server.thread_server import *
 from root.side_modules.settings import *
-from root.websockets.app import handler
 
-class WebSocketThread():
+class WebSocketThread(Logger):
     def __init__(self) -> None:
+        Logger.__init__(self,'WebSocket')
         self.tasks_pending = None
         self.loop = None
         self.ws_thread = None
         self.ws_object = None
+        self.connected = set()
 
     def start_loop(self, loop:asyncio.BaseEventLoop, server):
         """ Starting an event loop in a separate thread """
@@ -23,14 +25,19 @@ class WebSocketThread():
         
     def start_ws(self) ->threading.Thread:
         new_loop = asyncio.new_event_loop()
-        self.ws_object = websockets.serve(handler, HOST, WS_PORT, loop=new_loop)
+        self.ws_object = websockets.serve(self.handler, HOST, WS_PORT, loop=new_loop)
         self.ws_thread = threading.Thread(target=self.start_loop, args=(new_loop, self.ws_object))
         self.ws_thread.start()
-        print('WS started on 127.0.0.1:5051')
-
-def ask_exit():
-    for task in asyncio.Task.all_tasks():
-        task.cancel()
+        print('WS is listening on 127.0.0.1:5051')
+    
+    async def handler(self, websocket):
+        self.logger.info('New Connection...')
+        self.connected.add(websocket)
+        
+        await websocket.send('Hello User!')
+        
+        async for message in websocket:
+            print(message)
 
 if __name__ == "__main__":
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
@@ -51,7 +58,7 @@ if __name__ == "__main__":
             while server_thread.is_alive():
                 server_thread.join(1.0) # waits until the thread terminates
                 #ws_thread.join(0.5)
-                server.logger.info(f'ACTIVE CONNECTIONS {threading.active_count() - 1}')
+                server.logger.info(f'ACTIVE CONNECTIONS {threading.active_count() - 4}')
 
         except KeyboardInterrupt as kyi:
             server.logger.warning('KeyBoard Interrupt')
@@ -59,11 +66,10 @@ if __name__ == "__main__":
 
             server.signal_shut_down()
             server.shutdown()
-        # CancelledError
         finally:
+            # CancelledError
             for task in asyncio.all_tasks(ws_server.loop):
                 #print(task, end='\n\n')
                 task.cancel()
             ws_server.loop.stop()
-            #ws_server.loop.close()
             ws_server.ws_thread.join()

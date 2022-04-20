@@ -5,7 +5,7 @@ class Router(Logger):
     def __init__(self, *a, **kw):
         self.conf_args = a
         self.conf_kw = kw
-        Logger.__init__(self)
+        Logger.__init__(self, 'ROUTER')
 
     def __call__(self, *args, **kw):
         ROUTE_MAP[self.conf_args[0]] = args[0]
