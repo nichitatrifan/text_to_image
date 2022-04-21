@@ -161,7 +161,6 @@ function createPriveKey(){
    keyMap['privateKey'] = privateKey
 }
 
-newbranch
 const createCOP = () => {
    // n : generator value
    // a : private exponent
@@ -193,6 +192,7 @@ function adjustPriveKey(){
          keyMap['privateKey'][i][j] += cop[j]
       }
    }
+}
 
 function initCharMap(){
    let i = 0
@@ -201,9 +201,6 @@ function initCharMap(){
       charMap[ch] = keyMap['privateKey'][i]
       i++
     })
-
-    console.log(charMap)
-master
 }
 
 $(document).ready(function() {
@@ -224,6 +221,7 @@ $(document).ready(function() {
                createPriveKey()
                drawKeyMap()
                initCharMap()
+               sendCOPRequest()
                console.log(keyMap)
             },
             404: function() {
@@ -231,30 +229,34 @@ $(document).ready(function() {
             }
           }
       })
-      createCOP()
-      $.ajax({
-         url:'http://127.0.0.1:5050/cop_exchange',
-         type: 'POST',
-         encoding:"UTF-8",
-         data: JSON.stringify({
-            "n": keyMap['n'][100],
-            "h": keyMap['h'][100],
-            "A": keyMap['A'][100]
-         }),
-         statusCode: {
-            200: function(data) {
-               keyMap['B'].push(data['B'])
-               adjustPriveKey()
-               drawKeyMap()
-               console.log(keyMap)
-            },
-            404: function() {
-               alert( "Something went wrong!" )
-            }
-         }
-      })
    })
 })
+
+function sendCOPRequest(){
+   createCOP()
+   $.ajax({
+      url:'http://127.0.0.1:5050/cop_exchange',
+      type: 'POST',
+      encoding:"UTF-8",
+      data: JSON.stringify({
+         "n": keyMap['n'][100],
+         "h": keyMap['h'][100],
+         "A": keyMap['A'][100]
+      }),
+      statusCode: {
+         200: function(data) {
+            keyMap['B'].push(data['B'])
+            adjustPriveKey()
+            drawKeyMap()
+            console.log(keyMap)
+            console.log(charMap)
+         },
+         404: function() {
+            alert( "Something went wrong!" )
+         }
+      }
+   })
+}
 
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
