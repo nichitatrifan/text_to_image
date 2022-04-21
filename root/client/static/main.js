@@ -149,7 +149,7 @@ function createPriveKey(){
 
    for (let i=0; i<100; i++){
       for (let j=0; j<3; j++){
-         tempPrivate[j] = powerMod(keyMap['B'][i][j], keyMap['a'][i][j], keyMap['h'][i][j])
+         tempPrivate[j] = powerMod(keyMap['B'][i][j], keyMap['a'][i][j], keyMap['h'][i][j]) % 200
       }
       privateKey.push([tempPrivate[0], tempPrivate[1], tempPrivate[2]])
       
@@ -161,6 +161,39 @@ function createPriveKey(){
    keyMap['privateKey'] = privateKey
 }
 
+newbranch
+const createCOP = () => {
+   // n : generator value
+   // a : private exponent
+   // h : modulo
+   // A : public key ( A = n^a (mod h) )
+   let n = []
+   let a = []
+   let A = []
+   let h = []
+   for (let i=0; i<3; i++){
+      h[i] = getRandomPrime(range)
+      n[i] = getPrimitive(h[i])
+      a[i] = getRandomNum(1, h[i] - 1)
+      A[i] = powerMod(n[i], a[i], h[i])
+   }
+   keyMap['A'].push(A)
+   keyMap['n'].push(n)
+   keyMap['h'].push(h)
+   keyMap['a'].push(a)
+};
+
+function adjustPriveKey(){
+   cop = []
+   for (let i=0; i<3; i++){
+      cop[i] = powerMod(keyMap['B'][100][i], keyMap['a'][100][i], keyMap['h'][100][i]) % 55
+   }
+   for (let i=0; i<100; i++){
+      for (let j=0; j<3; j++){
+         keyMap['privateKey'][i][j] += cop[j]
+      }
+   }
+
 function initCharMap(){
    let i = 0
    
@@ -170,6 +203,7 @@ function initCharMap(){
     })
 
     console.log(charMap)
+master
 }
 
 $(document).ready(function() {
@@ -196,6 +230,28 @@ $(document).ready(function() {
               alert( "Something went wrong!" )
             }
           }
+      })
+      createCOP()
+      $.ajax({
+         url:'http://127.0.0.1:5050/cop_exchange',
+         type: 'POST',
+         encoding:"UTF-8",
+         data: JSON.stringify({
+            "n": keyMap['n'][100],
+            "h": keyMap['h'][100],
+            "A": keyMap['A'][100]
+         }),
+         statusCode: {
+            200: function(data) {
+               keyMap['B'].push(data['B'])
+               adjustPriveKey()
+               drawKeyMap()
+               console.log(keyMap)
+            },
+            404: function() {
+               alert( "Something went wrong!" )
+            }
+         }
       })
    })
 })
