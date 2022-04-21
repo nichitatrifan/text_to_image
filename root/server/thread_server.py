@@ -9,7 +9,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer, Log
     #TODO create a function for the active connections displaying
     # use that function as a separate thread
     def __init__(self, *args) -> None:
-        Logger.__init__(self)
+        Logger.__init__(self,'SERVER')
         super().__init__(*args)
     
     def signal_shut_down(self):

@@ -1,25 +1,27 @@
 let socket = new WebSocket("ws://127.0.0.1:5051/");
+let count = 0
 
 socket.onopen = function(e) {
   alert("[open] Connection established");
   //alert("Sending to server");
-  socket.send("My name is John");
+  //socket.send("My name is John");
+  sendText()
 };
 
 function sendText() {
   // Создайте объект содержащий данные, необходимые серверу для обрабоки сообщения от клиента чата.
   var msg = {
     type: "message",
-    text: document.getElementById("text").value,
-    id:   clientID,
+    text: "new message",          //document.getElementById("text").value,
+    count: count,
     date: Date.now()
   }
 
   // Отправьте объект в виде JSON строки.
   socket.send(JSON.stringify(msg));
-
+  count++
   // Очистите элемент ввода текста, чтобы получить следующую строку текста от пользователя.
-  document.getElementById("text").value = "";
+  // document.getElementById("text").value = "";
 };
 
 socket.onmessage = function (event) {

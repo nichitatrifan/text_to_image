@@ -67,7 +67,7 @@ def handle_key_exchange(parsed_request:dict):
                     if not st.CHAR_MAP[key]:
                         st.CHAR_MAP[key] = B_private
                         break
-        # print('B private: \n',B_private)
+        print('B private: \n',B_private)
         
         _data = { 
             'B': B_public
@@ -184,21 +184,3 @@ def open_chat(parsed_request:dict):
         'payload': html_text
     }
     return response
-
-# response to upgrade
-# connection to websocket
-#
-#
-# HTTP/1.1 101 Switching Protocols
-# Upgrade: websocket
-# Connection: Upgrade
-# Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
-#
-#
-# need to send the chat page as well
-#
-# compute the secret accpet header:
-#   1) concatenate with '258EAFA5-E914-47DA-95CA-C5AB0DC85B11' (magic string)
-#   2) perform SHA-1 (hashing algorithm)
-#
-#  WebSocket extensions and subprotocols are negotiated via headers during the handshake.

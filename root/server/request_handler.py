@@ -4,8 +4,6 @@ import sys
 import traceback
 import re
 import asyncio
-import hashlib
-import base64
 
 import root.side_modules.settings as st
 
@@ -15,7 +13,7 @@ from root.server.views import *
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request:socket, client_address, server) -> None:
-        Logger.__init__(self)
+        Logger.__init__(self, 'SERVER')
         #super().__init__(request, client_address, server)
 
         self.process_loop = asyncio.new_event_loop()

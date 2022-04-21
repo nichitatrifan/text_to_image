@@ -1,4 +1,5 @@
 const range = [100, 1000];
+
 let keyMap = {
    'n' : null, // n : generator value
    'a' : null, // a : private exponent
@@ -7,6 +8,15 @@ let keyMap = {
    'B' : null, // B : received key
    'privateKey' : 'null' // APrivet : ( A' = B^a (mod h) )
 }
+
+let printables = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 
+'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
+'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 
+'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '"', '#', '$', '%', '&', 
+"'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', 
+']', '^', '_', '`', '{', '|', '}', '~', ' ', '\t', '\n', '\r', '\x0b', '\x0c']
+
+let charMap = {}
 
 const getPrimes = (min, max) => {
    const result = Array(max + 1)
@@ -151,6 +161,7 @@ function createPriveKey(){
    keyMap['privateKey'] = privateKey
 }
 
+newbranch
 const createCOP = () => {
    // n : generator value
    // a : private exponent
@@ -182,6 +193,17 @@ function adjustPriveKey(){
          keyMap['privateKey'][i][j] += cop[j]
       }
    }
+
+function initCharMap(){
+   let i = 0
+   
+   printables.forEach((ch) => {
+      charMap[ch] = keyMap['privateKey'][i]
+      i++
+    })
+
+    console.log(charMap)
+master
 }
 
 $(document).ready(function() {
@@ -201,6 +223,7 @@ $(document).ready(function() {
                keyMap['B'] = data['B']
                createPriveKey()
                drawKeyMap()
+               initCharMap()
                console.log(keyMap)
             },
             404: function() {
