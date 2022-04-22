@@ -62,13 +62,13 @@ def handle_key_exchange(parsed_request:dict):
             B_private.append(temp_B_private)
 
         if B_private:
-            for  B in B_private:
-                for key in st.CHAR_MAP:
-                    if not st.CHAR_MAP[key]:
-                        st.CHAR_MAP[key] = B_private
-                        break
-        # print('B private: \n',B_private)
-        
+            for i, key in enumerate(st.CHAR_MAP):
+                print(key, B_private[i])
+                st.CHAR_MAP[key] = B_private[i]
+                # for key in st.CHAR_MAP:
+                #     if not st.CHAR_MAP[key]:
+                #         st.CHAR_MAP[key] = B_private
+                #         break
         _data = { 
             'B': B_public
             }
@@ -145,8 +145,15 @@ def handle_cop_exchange(parsed_request:dict):
         # add cop values to char map
         if B_private:
             for key in st.CHAR_MAP:
-                st.CHAR_MAP[key] = [sum(B) for B in zip(st.CHAR_MAP[key], B_private)]
-        
+                st.CHAR_MAP[key][0] = int(st.CHAR_MAP[key][0]) + int(B_private[0])
+                st.CHAR_MAP[key][1] = int(st.CHAR_MAP[key][1]) +  int(B_private[1])
+                st.CHAR_MAP[key][2] = int(st.CHAR_MAP[key][2]) +  int(B_private[2])
+                # st.CHAR_MAP[key] = [sum(B) for B in zip(st.CHAR_MAP[key], B_private)] # summation of an array with a value!!!!
+        print(st.CHAR_MAP)
+        for key in st.CHAR_MAP:
+            value = str(st.CHAR_MAP[key][0]) + str(st.CHAR_MAP[key][1]) + str(st.CHAR_MAP[key][2])
+            st.DECODE_MAP[value] = key
+        print(st.DECODE_MAP)
         _data = { 
             'B': B_public
             }
@@ -184,21 +191,3 @@ def open_chat(parsed_request:dict):
         'payload': html_text
     }
     return response
-
-# response to upgrade
-# connection to websocket
-#
-#
-# HTTP/1.1 101 Switching Protocols
-# Upgrade: websocket
-# Connection: Upgrade
-# Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
-#
-#
-# need to send the chat page as well
-#
-# compute the secret accpet header:
-#   1) concatenate with '258EAFA5-E914-47DA-95CA-C5AB0DC85B11' (magic string)
-#   2) perform SHA-1 (hashing algorithm)
-#
-#  WebSocket extensions and subprotocols are negotiated via headers during the handshake.

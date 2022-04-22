@@ -14,6 +14,7 @@ SHUT_DOWN_SERVER = False
 CONNECTED_CLIENTS = {}
 ROUTE_MAP = {}
 CHAR_MAP = {}
+DECODE_MAP = {}
 
 STATIC_PATH = os.path.abspath(os.getcwd()).replace('\\','/') + '/root/client/static'
 

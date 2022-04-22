@@ -15,9 +15,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
     def __init__(self, request:socket, client_address, server) -> None:
         Logger.__init__(self, 'SERVER')
         #super().__init__(request, client_address, server)
-
-        self.process_loop = asyncio.new_event_loop()
-
         self.request = request
         self.client_address = client_address
         self.server = server
@@ -26,12 +23,17 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler, Logger):
             self.handle()
         finally:
             self.finish()
+    
+    def init_char_map(self):
+        for ch in string.printable:
+            st.CHAR_MAP[ch] = []
 
     def add_to_client_pool(self, client_ip, client_port):
         addresses = st.CONNECTED_CLIENTS.keys()
         if client_ip not in addresses:
             temp = [client_port]
             st.CONNECTED_CLIENTS[client_ip] = temp
+            self.init_char_map()
         else:
             st.CONNECTED_CLIENTS[client_ip].append(client_port)
         self.logger.info('CLIENTS: ' + str(st.CONNECTED_CLIENTS))

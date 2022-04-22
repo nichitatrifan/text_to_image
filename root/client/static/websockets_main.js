@@ -2,17 +2,19 @@ let socket = new WebSocket("ws://127.0.0.1:5051/");
 let count = 0
 
 socket.onopen = function(e) {
-  alert("[open] Connection established");
+  //alert("[open] Connection established");
   //alert("Sending to server");
   //socket.send("My name is John");
-  sendText()
+  console.log('connection established!')
+  //sendText()
 };
 
 function sendText() {
   // Создайте объект содержащий данные, необходимые серверу для обрабоки сообщения от клиента чата.
+  let encodedMessage = encodeMessage()
   var msg = {
     type: "message",
-    text: "new message",          //document.getElementById("text").value,
+    text: encodedMessage,
     count: count,
     date: Date.now()
   }
@@ -39,5 +41,12 @@ socket.onclose = function(event) {
 };
 
 socket.onerror = function(error) {
-  alert(`[error] ${error.message}`);
+  //alert(`[error] ${error.message}`);
+  console.log(error.message)
 };
+
+document.getElementById('text-input').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    sendText()
+  }
+});

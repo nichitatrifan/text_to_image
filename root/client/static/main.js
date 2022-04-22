@@ -1,4 +1,5 @@
 const range = [100, 1000];
+
 let keyMap = {
    'n' : null, // n : generator value
    'a' : null, // a : private exponent
@@ -7,6 +8,15 @@ let keyMap = {
    'B' : null, // B : received key
    'privateKey' : 'null' // APrivet : ( A' = B^a (mod h) )
 }
+
+let printables = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 
+'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
+'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 
+'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '"', '#', '$', '%', '&', 
+"'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', 
+']', '^', '_', '`', '{', '|', '}', '~', ' ', '\t', '\n', '\r', '\x0b', '\x0c']
+
+let charMap = {}
 
 const getPrimes = (min, max) => {
    const result = Array(max + 1)
@@ -184,6 +194,15 @@ function adjustPriveKey(){
    }
 }
 
+function initCharMap(){
+   let i = 0
+   
+   printables.forEach((ch) => {
+      charMap[ch] = keyMap['privateKey'][i]
+      i++
+   })
+}
+
 $(document).ready(function() {
    $("#driver").click(function(event){
       createKeyMap()
@@ -201,37 +220,45 @@ $(document).ready(function() {
                keyMap['B'] = data['B']
                createPriveKey()
                drawKeyMap()
+               initCharMap()
+               sendCOPRequest()
                console.log(keyMap)
+               //encodeCanvas()
             },
             404: function() {
               alert( "Something went wrong!" )
             }
           }
       })
-      createCOP()
-      $.ajax({
-         url:'http://127.0.0.1:5050/cop_exchange',
-         type: 'POST',
-         encoding:"UTF-8",
-         data: JSON.stringify({
-            "n": keyMap['n'][100],
-            "h": keyMap['h'][100],
-            "A": keyMap['A'][100]
-         }),
-         statusCode: {
-            200: function(data) {
-               keyMap['B'].push(data['B'])
-               adjustPriveKey()
-               drawKeyMap()
-               console.log(keyMap)
-            },
-            404: function() {
-               alert( "Something went wrong!" )
-            }
-         }
-      })
    })
 })
+
+function sendCOPRequest(){
+   createCOP()
+   $.ajax({
+      url:'http://127.0.0.1:5050/cop_exchange',
+      type: 'POST',
+      encoding:"UTF-8",
+      data: JSON.stringify({
+         "n": keyMap['n'][100],
+         "h": keyMap['h'][100],
+         "A": keyMap['A'][100]
+      }),
+      statusCode: {
+         200: function(data) {
+            keyMap['B'].push(data['B'])
+            adjustPriveKey()
+            drawKeyMap()
+            console.log(keyMap)
+            console.log(charMap)
+            sessionStorage.setItem("charMap", JSON.stringify(charMap))
+         },
+         404: function() {
+            alert( "Something went wrong!" )
+         }
+      }
+   })
+}
 
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
