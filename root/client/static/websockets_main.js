@@ -6,14 +6,15 @@ socket.onopen = function(e) {
   //alert("Sending to server");
   //socket.send("My name is John");
   console.log('connection established!')
-  sendText()
+  //sendText()
 };
 
 function sendText() {
   // Создайте объект содержащий данные, необходимые серверу для обрабоки сообщения от клиента чата.
+  let encodedMessage = encodeMessage()
   var msg = {
     type: "message",
-    text: "new message",          //document.getElementById("text").value,
+    text: encodedMessage,
     count: count,
     date: Date.now()
   }
@@ -45,6 +46,6 @@ socket.onerror = function(error) {
 
 document.getElementById('text-input').addEventListener('keypress', function (e) {
   if (e.key === 'Enter') {
-    encodeMessage()
+    sendText()
   }
 });

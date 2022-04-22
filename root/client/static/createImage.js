@@ -53,4 +53,6 @@ function encodeMessage(){
 
     let dataURL = messagePNG.toDataURL();
     console.log(dataURL);
+
+    return dataURL
 }
