@@ -57,8 +57,16 @@ class WebSocketThread(Logger):
                 channels = 4
             pixel_values = np.array(pixel_values).reshape((width, height, channels))
             # print(pixel_values)
+            message_values = []
             for i in range(int(width/10)):
-                print(pixel_values[i,0])
+                message_values.append([pixel_values[i,0][0], pixel_values[i,0][1], pixel_values[i,0][2]])
+                # print(pixel_values[i,0])
+            print(message_values)
+            message_str = ''
+            for i in range(len(message_values)):
+                key = str(message_values[i][0]) + str(message_values[i][1]) + str(message_values[i][2])
+                message_str += DECODE_MAP[key]
+            print('Actual MEssage :' + message_str)
 
 if __name__ == "__main__":
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)

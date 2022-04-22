@@ -150,6 +150,10 @@ def handle_cop_exchange(parsed_request:dict):
                 st.CHAR_MAP[key][2] = int(st.CHAR_MAP[key][2]) +  int(B_private[2])
                 # st.CHAR_MAP[key] = [sum(B) for B in zip(st.CHAR_MAP[key], B_private)] # summation of an array with a value!!!!
         print(st.CHAR_MAP)
+        for key in st.CHAR_MAP:
+            value = str(st.CHAR_MAP[key][0]) + str(st.CHAR_MAP[key][1]) + str(st.CHAR_MAP[key][2])
+            st.DECODE_MAP[value] = key
+        print(st.DECODE_MAP)
         _data = { 
             'B': B_public
             }
