@@ -1,4 +1,5 @@
 let canvas = document.getElementById('matrix')
+let encodedValues = []
 
 function drawKeyMap () {
     if (canvas.getContext) {
@@ -34,9 +35,22 @@ function encodeCanvas(){
 function encodeMessage(){
     let charMap = JSON.parse(sessionStorage.getItem('charMap'))
     text = document.getElementById('text-input').value
-    let encodedValues = []
     for (let i = 0; i < text.length; i++) {
         encodedValues.push(charMap[text.charAt(i)])
     }
     console.log(encodedValues)
+
+    let messagePNG = document.getElementById('message-canvas')
+    
+    let ctx = messagePNG.getContext('2d')
+    text = document.getElementById('text-input').value
+    messagePNG.setAttribute('width',text.length*10)
+    for(let i = 0; i < text.length; i++){
+        rgbString = 'rgb(' + encodedValues[i][0] + ', ' + encodedValues[i][1] + ', ' + encodedValues[i][2] + ')'
+        ctx.fillStyle = rgbString
+        ctx.fillRect(i*10, 0, 10, 10)
+    }
+
+    let dataURL = messagePNG.toDataURL();
+    console.log(dataURL);
 }

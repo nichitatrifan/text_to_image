@@ -2,9 +2,10 @@ let socket = new WebSocket("ws://127.0.0.1:5051/");
 let count = 0
 
 socket.onopen = function(e) {
-  alert("[open] Connection established");
+  //alert("[open] Connection established");
   //alert("Sending to server");
   //socket.send("My name is John");
+  console.log('connection established!')
   sendText()
 };
 
