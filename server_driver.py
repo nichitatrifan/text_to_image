@@ -34,40 +34,46 @@ class WebSocketThread(Logger):
         self.ws_thread.start()
         print('WS is listening on 127.0.0.1:5051')
     
+    def decode_message(self, data_uri:str, count:int):
+
+        header, encoded_text = data_uri.split(',', 1)
+        
+        image_data = b64decode(encoded_text)
+        with open(f'char_maps/image_{count}.png', 'wb') as png_file:
+            png_file.write(image_data)
+        
+        message_image = Image.open(f'char_maps/image_{count}.png')
+        width, height = message_image.size
+        pixel_values = list(message_image.getdata())
+        if message_image.mode == 'RGBA':
+            channels = 4
+        pixel_values = np.array(pixel_values).reshape((width, height, channels))
+        # print(pixel_values)
+        message_values = []
+        for i in range(int(width/10)):
+            message_values.append([pixel_values[i,0][0], pixel_values[i,0][1], pixel_values[i,0][2]])
+            # print(pixel_values[i,0])
+        print(message_values)
+        message_str = ''
+        for i in range(len(message_values)):
+            key = str(message_values[i][0]) + str(message_values[i][1]) + str(message_values[i][2])
+            message_str += DECODE_MAP[key]
+        return message_str
+
     async def handler(self, websocket):
         self.logger.info('New Connection...')
         self.connected.add(websocket)
         
         await websocket.send('Hello User!')
-        
         async for message in websocket:
             message_dict = json.loads(message)
             data_uri = message_dict['text']
-            header, encoded_text = data_uri.split(',', 1)
+            message_text = self.decode_message(data_uri, message_dict['count'])
+            print('Actual Message :' + message_text)
+            # echoing the message
+            message_dict['count'] = 1 + int(message_dict['count'])
+            await websocket.send(json.dumps(message_dict))
             
-            image_data = b64decode(encoded_text)
-            count = message_dict['count']
-            with open(f'char_maps/image_{count}.png', 'wb') as png_file:
-                png_file.write(image_data)
-            
-            message_image = Image.open(f'char_maps/image_{count}.png')
-            width, height = message_image.size
-            pixel_values = list(message_image.getdata())
-            if message_image.mode == 'RGBA':
-                channels = 4
-            pixel_values = np.array(pixel_values).reshape((width, height, channels))
-            # print(pixel_values)
-            message_values = []
-            for i in range(int(width/10)):
-                message_values.append([pixel_values[i,0][0], pixel_values[i,0][1], pixel_values[i,0][2]])
-                # print(pixel_values[i,0])
-            print(message_values)
-            message_str = ''
-            for i in range(len(message_values)):
-                key = str(message_values[i][0]) + str(message_values[i][1]) + str(message_values[i][2])
-                message_str += DECODE_MAP[key]
-            print('Actual MEssage :' + message_str)
-
 if __name__ == "__main__":
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
     ip, port = server.server_address
