@@ -41,3 +41,9 @@ socket.onclose = function(event) {
 socket.onerror = function(error) {
   alert(`[error] ${error.message}`);
 };
+
+document.getElementById('text-input').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    encodeMessage()
+  }
+});

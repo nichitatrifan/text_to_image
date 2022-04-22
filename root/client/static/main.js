@@ -200,7 +200,7 @@ function initCharMap(){
    printables.forEach((ch) => {
       charMap[ch] = keyMap['privateKey'][i]
       i++
-    })
+   })
 }
 
 $(document).ready(function() {
@@ -223,6 +223,7 @@ $(document).ready(function() {
                initCharMap()
                sendCOPRequest()
                console.log(keyMap)
+               //encodeCanvas()
             },
             404: function() {
               alert( "Something went wrong!" )
@@ -250,6 +251,7 @@ function sendCOPRequest(){
             drawKeyMap()
             console.log(keyMap)
             console.log(charMap)
+            sessionStorage.setItem("charMap", JSON.stringify(charMap))
          },
          404: function() {
             alert( "Something went wrong!" )

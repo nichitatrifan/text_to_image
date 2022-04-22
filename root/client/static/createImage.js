@@ -25,3 +25,18 @@ function drawKeyMap () {
     }
     
 }
+
+function encodeCanvas(){
+    let dataURL = canvas.toDataURL();
+    console.log(dataURL);
+}
+
+function encodeMessage(){
+    let charMap = JSON.parse(sessionStorage.getItem('charMap'))
+    text = document.getElementById('text-input').value
+    let encodedValues = []
+    for (let i = 0; i < text.length; i++) {
+        encodedValues.push(charMap[text.charAt(i)])
+    }
+    console.log(encodedValues)
+}
