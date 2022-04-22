@@ -1,8 +1,10 @@
+
 import threading
 import asyncio
 import websockets
-import time
+import json
 
+from base64 import b64decode
 from root.server.request_handler import ThreadedTCPRequestHandler
 from root.server.logger import Logger
 from root.server.thread_server import *
@@ -37,7 +39,13 @@ class WebSocketThread(Logger):
         await websocket.send('Hello User!')
         
         async for message in websocket:
-            print(message)
+            message_dict = json.loads(message)
+            data_uri = message_dict['text']
+            header, encoded_text = data_uri.split(',', 1)
+            image_data = b64decode(encoded_text)
+            count = message_dict['count']
+            with open(f'char_maps/image_{count}.png', 'wb') as png_file:
+                png_file.write(image_data)
 
 if __name__ == "__main__":
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
