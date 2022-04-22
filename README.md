@@ -16,7 +16,7 @@ Flask or Django. This exeperience helps to understand better the underlying proc
 - [x] map creation endpoint
 - [x] add resource path to the settings.py
 - [ ] modify exception handling in request_handler.py
-- [ ] char-map initialization
+- [x] char-map initialization
 - [x] handle requests for JS, CSS, and other http
 - [x] fix http request parser (limited amount of chars)
 - [ ] fix doubling connections from the 'refresh' button
