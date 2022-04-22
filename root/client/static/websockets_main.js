@@ -41,7 +41,8 @@ socket.onclose = function(event) {
 };
 
 socket.onerror = function(error) {
-  alert(`[error] ${error.message}`);
+  //alert(`[error] ${error.message}`);
+  console.log(error.message)
 };
 
 document.getElementById('text-input').addEventListener('keypress', function (e) {
