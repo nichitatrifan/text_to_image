@@ -251,7 +251,7 @@ function sendCOPRequest(){
             drawKeyMap()
             console.log(keyMap)
             console.log(charMap)
-            sessionStorage.setItem("charMap", JSON.stringify(charMap))
+            sessionStorage.setItem("charMap", JSON.stringify(charMap));
          },
          404: function() {
             alert( "Something went wrong!" )
@@ -262,5 +262,5 @@ function sendCOPRequest(){
 
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
-   location.href = 'http://127.0.0.1:5050/open_chat'
+   location.href = 'http://localhost:5050/open_chat'
 }
