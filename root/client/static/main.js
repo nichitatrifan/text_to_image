@@ -263,4 +263,5 @@ function sendCOPRequest(){
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
    location.href = 'http://localhost:5050/open_chat'
+   sessionStorage.setItem("chatName", JSON.stringify(document.getElementById('chat-name').value))
 }

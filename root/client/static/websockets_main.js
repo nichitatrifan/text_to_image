@@ -7,6 +7,8 @@ socket.onopen = function(e) {
   //socket.send("My name is John");
   console.log('connection established!')
   //sendText()
+  let chatName = JSON.parse(sessionStorage.getItem("chatName"));
+  if (chatName != "") document.getElementById('chat-title').innerHTML = "<strong>"+chatName+"</strong>";
 };
 
 function sendText() {
