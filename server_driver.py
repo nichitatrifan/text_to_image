@@ -23,7 +23,7 @@ if __name__ == "__main__":
             ws_server.start_ws()
 
             while server_thread.is_alive():
-                server_thread.join(1.0) # waits until the thread terminates
+                server_thread.join(0.8) # waits until the thread terminates
                 ws_server.ws_thread.join(0.1)
                 server.logger.info(f'ACTIVE CONNECTIONS {threading.active_count() - 4}')
 
