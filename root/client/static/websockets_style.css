@@ -196,6 +196,7 @@ h4.card-title {
 .media-chat.media-chat-reverse {
     padding-right: 12px;
     padding-left: 64px;
+    float: right;
     -webkit-box-orient: horizontal;
     -webkit-box-direction: reverse;
     flex-direction: row-reverse

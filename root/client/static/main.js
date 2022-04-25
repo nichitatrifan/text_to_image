@@ -251,7 +251,7 @@ function sendCOPRequest(){
             drawKeyMap()
             console.log(keyMap)
             console.log(charMap)
-            sessionStorage.setItem("charMap", JSON.stringify(charMap))
+            sessionStorage.setItem("charMap", JSON.stringify(charMap));
          },
          404: function() {
             alert( "Something went wrong!" )
@@ -260,7 +260,19 @@ function sendCOPRequest(){
    })
 }
 
+document.getElementById('chat-name').addEventListener("keypress", function(event) {
+   if (event.key == "Enter") {
+      event.preventDefault();
+   }
+});
+
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
-   location.href = 'http://127.0.0.1:5050/open_chat'
+   if (JSON.parse(sessionStorage.getItem("charMap")) != null) {
+      location.href = 'http://localhost:5050/open_chat'
+      sessionStorage.setItem("chatName", JSON.stringify(document.getElementById('chat-name').value))
+   }
+   else {
+      alert( "Must generate key before starting chat" )
+   }
 }
