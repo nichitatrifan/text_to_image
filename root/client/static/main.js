@@ -269,8 +269,8 @@ document.getElementById('chat-name').addEventListener("keypress", function(event
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
    if (JSON.parse(sessionStorage.getItem("charMap")) != null) {
-      location.href = 'http://localhost:5050/open_chat'
       sessionStorage.setItem("chatName", JSON.stringify(document.getElementById('chat-name').value))
+      location.href = 'http://localhost:5050/open_chat'
    }
    else {
       alert( "Must generate key before starting chat" )

@@ -64,6 +64,7 @@ function encodeMessage(){
     }
     catch (e) {
         if (e instanceof TypeError) {
+            console.log(e)
             return null
         }
         else {
