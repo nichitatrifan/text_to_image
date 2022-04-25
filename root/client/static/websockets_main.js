@@ -6,13 +6,14 @@ socket.onopen = function(e) {
   //alert("Sending to server");
   //socket.send("My name is John");
   console.log('connection established!')
+  console.log(JSON.parse(sessionStorage.getItem("charMap")))
   //sendText()
   let chatName = JSON.parse(sessionStorage.getItem("chatName"));
   if (chatName != "") document.getElementById('chat-title').innerHTML = "<strong>"+chatName+"</strong>";
 };
 
 function sendText() {
-  // Создайте объект содержащий данные, необходимые серверу для обрабоки сообщения от клиента чата.
+
   let message = document.getElementById('text-input').value
   if (message != "") {
     let encodedMessage = encodeMessage()
@@ -24,7 +25,6 @@ function sendText() {
         date: Date.now()
       }
 
-      // Отправьте объект в виде JSON строки.
       socket.send(JSON.stringify(msg));
       count++
       document.getElementById("chat-content").innerHTML += "<div class=\"media media-chat\"><div class=\"media-body\"><p>" + message + "</p></div></div>";
@@ -32,8 +32,7 @@ function sendText() {
     else {
       alert('Invalid Message');
     }
-    // Очистите элемент ввода текста, чтобы получить следующую строку текста от пользователя.
-    // document.getElementById("text").value = "";
+
     document.getElementById("text-input").value = "";
   }
 };

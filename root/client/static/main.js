@@ -268,7 +268,7 @@ document.getElementById('chat-name').addEventListener("keypress", function(event
 
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
-   if (JSON.parse(sessionStorage.getItem("charMap")) != null) {
+   if (!jQuery.isEmptyObject(charMap)) {
       sessionStorage.setItem("chatName", JSON.stringify(document.getElementById('chat-name').value))
       location.href = 'http://localhost:5050/open_chat'
    }
