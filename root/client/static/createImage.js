@@ -38,28 +38,38 @@ function encodeMessage(){
     //    [77, 111, 111], 'f': [18, 188, 150], 'g': [105, 43, 59], 'h': [170, 169, 37], 'i': [14, 71, 98], 'j': [9, 78, 82], 'k': [170, 213, 182], 'l': [190, 221, 125], 'm': [34, 32, 59], 'n': [22, 96, 144], 'o': [1, 39, 31], 'p': [142, 174, 125], 'q': [49, 223, 42], 'r': [68, 178, 50], 's': [172, 190, 109], 't': [151, 101, 111], 'u': [13, 86, 42], 'v': [24, 107, 144], 'w': [135, 133, 120], 'x': [30, 180, 32], 'y': [144, 45, 102], 'z': [57, 
     //    139, 37], 'A': [195, 69, 53], 'B': [1, 80, 59], 'C': [46, 95, 106], 'D': [111, 112, 196], 'E': [150, 72, 91], 'F': [24, 164, 97], 'G': [20, 68, 149], 'H': [22, 100, 106], 'I': [136, 50, 205], 'J': [24, 149, 109], 'K': [66, 184, 76], 'L': [152, 77, 181], 'M': [83, 63, 81], 'N': [127, 95, 52], 'O': [55, 133, 84], 'P': [119, 47, 102], 'Q': [4, 179, 44], 'R': [87, 108, 122], 'S': [6, 228, 184], 'T': [83, 212, 121], 'U': [35, 120, 180], 'V': [57, 137, 89], 'W': [18, 162, 166], 'X': [45, 225, 99], 'Y': [144, 192, 54], 'Z': [111, 107, 208], '!': [148, 56, 177], '"': [39, 34, 166], '#': [42, 38, 65], '$': [42, 195, 87], '%': [127, 213, 75], '&': [6, 41, 45], "'": [182, 185, 149], '(': [142, 124, 72], ')': [109, 60, 82], '*': [18, 60, 176], '+': [80, 32, 57], ',': [75, 47, 69], '-': [16, 150, 187], '.': [55, 134, 100], '/': [101, 47, 61], ':': [82, 228, 130], ';': [158, 127, 180], '<': [32, 42, 64], '=': [136, 65, 34], '>': [142, 215, 130], '?': [157, 35, 26], '@': [164, 64, 159], '[': [134, 100, 219], '\\': 
     //    [59, 160, 26], ']': [104, 198, 82], '^': [65, 46, 178], '_': [125, 49, 214], '`': [82, 32, 128], '{': [83, 170, 87], '|': [76, 135, 38], '}': [129, 53, 140], '~': [17, 180, 69], ' ': [51, 163, 173], '\t': [15, 172, 116], '\n': [146, 178, 102], '\r': [2, 197, 210], '\x0b': [17, 112, 170], '\x0c': [31, 105, 76]}
-    let encodedValues = []
-    text = document.getElementById('text-input').value
-    for (let i = 0; i < text.length; i++) {
-        encodedValues.push(charMap[text.charAt(i)])
+    try {
+        let encodedValues = []
+        text = document.getElementById('text-input').value
+        for (let i = 0; i < text.length; i++) {
+            encodedValues.push(charMap[text.charAt(i)])
+        }
+        console.log(encodedValues)
+
+        let messagePNG = document.getElementById('message-canvas')
+        
+        let ctx = messagePNG.getContext('2d')
+        text = document.getElementById('text-input').value
+        messagePNG.setAttribute('width',text.length*10)
+        for(let i = 0; i < text.length; i++){
+            rgbString = 'rgb(' + encodedValues[i][0] + ', ' + encodedValues[i][1] + ', ' + encodedValues[i][2] + ')'
+            ctx.fillStyle = rgbString
+            ctx.fillRect(i*10, 0, 10, 10)
+        }
+
+        let dataURL = messagePNG.toDataURL();
+        console.log(dataURL);
+
+        return dataURL
     }
-    console.log(encodedValues)
-
-    let messagePNG = document.getElementById('message-canvas')
-    
-    let ctx = messagePNG.getContext('2d')
-    text = document.getElementById('text-input').value
-    messagePNG.setAttribute('width',text.length*10)
-    for(let i = 0; i < text.length; i++){
-        rgbString = 'rgb(' + encodedValues[i][0] + ', ' + encodedValues[i][1] + ', ' + encodedValues[i][2] + ')'
-        ctx.fillStyle = rgbString
-        ctx.fillRect(i*10, 0, 10, 10)
+    catch (e) {
+        if (e instanceof TypeError) {
+            return null
+        }
+        else {
+            throw e
+        }
     }
-
-    let dataURL = messagePNG.toDataURL();
-    console.log(dataURL);
-
-    return dataURL
 }
 
 function dataURLToImageData(dataURL){

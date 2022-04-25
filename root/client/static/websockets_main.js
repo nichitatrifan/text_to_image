@@ -16,17 +16,22 @@ function sendText() {
   let message = document.getElementById('text-input').value
   if (message != "") {
     let encodedMessage = encodeMessage()
-    var msg = {
-      type: "message",
-      text: encodedMessage,
-      count: count,
-      date: Date.now()
-    }
+    if (encodedMessage != null) {
+      var msg = {
+        type: "message",
+        text: encodedMessage,
+        count: count,
+        date: Date.now()
+      }
 
-    // Отправьте объект в виде JSON строки.
-    socket.send(JSON.stringify(msg));
-    count++
-    document.getElementById("chat-content").innerHTML += "<div class=\"media media-chat\"><div class=\"media-body\"><p>" + message + "</p></div></div>";
+      // Отправьте объект в виде JSON строки.
+      socket.send(JSON.stringify(msg));
+      count++
+      document.getElementById("chat-content").innerHTML += "<div class=\"media media-chat\"><div class=\"media-body\"><p>" + message + "</p></div></div>";
+    }
+    else {
+      alert('Invalid Message');
+    }
     // Очистите элемент ввода текста, чтобы получить следующую строку текста от пользователя.
     // document.getElementById("text").value = "";
     document.getElementById("text-input").value = "";
