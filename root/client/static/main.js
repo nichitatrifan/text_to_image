@@ -260,6 +260,12 @@ function sendCOPRequest(){
    })
 }
 
+document.getElementById('chat-name').addEventListener("keypress", function(event) {
+   if (event.key == "Enter") {
+      event.preventDefault();
+   }
+});
+
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
    location.href = 'http://localhost:5050/open_chat'
