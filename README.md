@@ -63,6 +63,10 @@ Below you can find 3 main states of a message:
 
 ![image_representation](/readme_res/image_representation.png)
 
+To encrypt the previous message we used the private key that was generated on both sides: client and server.
+Here is the graphical representation of the private key:\
+![private_key](/readme_res/private_key.png)
+
 ## TODO List
 
 - [x] Router class
