@@ -50,10 +50,10 @@ send it through the network in base64 format.
 Below you can find 3 main states of a message:
 
 - Plain Text:\
-![plaint_text](/readme_res/first_phase_text.png) \
+![plaint_text](/readme_res/first_phase_text.png)
 
 - Assigning RGB Values:\
-![rgb_values](/readme_res/rgb_values.png)\
+![rgb_values](/readme_res/rgb_values.png)
 
 - dataURI and the .png:\
 
@@ -61,7 +61,7 @@ Below you can find 3 main states of a message:
     data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAAAKCAYAAAAzSFWlAAAAAXNSR0IArs4c6QAAAMpJREFUWEdj1K85/5+BCCD+8RcRqhgYfDxKiFJHrKIXqZ+IUnr0LS9R6r4lTidKndq2MqLUZawpJkpd0wVWotSJtXQQpe61fwNR6ohVxD43kyil+YzExcejRT5Emcc4mgCxh9NoAsQeLqMJEEe+Gi0BiSpwcCoaLQFxBM1oFYw9YEarYBwJZrQNiD1gRtuA2MNltA2IIyONtgFH24DgEBitgkerYHAIjA7DYE8Io8Mw2MNldBgGR9U6Og6IPWBGe8GjvWBwCIy0gWgAPezjT7CiZnUAAAAASUVORK5CYII=
 ```
 
-![image_representation](/readme_res/image_representation.png)\
+![image_representation](/readme_res/image_representation.png)
 
 ## TODO List
 
