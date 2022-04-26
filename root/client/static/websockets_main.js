@@ -1,6 +1,12 @@
 let socket = new WebSocket("ws://127.0.0.1:5051/");
 let count = 0
 
+let chatName = sessionStorage.getItem("chatName")
+
+if (chatName != "" && chatName != null){
+  document.getElementById('chat-title').innerHTML = "<strong>"+chatName+"</strong>"
+} 
+
 socket.onopen = function(e) {
   //alert("[open] Connection established");
   //alert("Sending to server");
@@ -8,8 +14,6 @@ socket.onopen = function(e) {
   console.log('connection established!')
   console.log(JSON.parse(sessionStorage.getItem("charMap")))
   //sendText()
-  let chatName = JSON.parse(sessionStorage.getItem("chatName"));
-  if (chatName != "") document.getElementById('chat-title').innerHTML = "<strong>"+chatName+"</strong>";
 };
 
 function sendText() {

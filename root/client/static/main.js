@@ -251,7 +251,6 @@ function sendCOPRequest(){
             drawKeyMap()
             console.log(keyMap)
             console.log(charMap)
-            sessionStorage.setItem("charMap", JSON.stringify(charMap));
          },
          404: function() {
             alert( "Something went wrong!" )
@@ -269,8 +268,11 @@ document.getElementById('chat-name').addEventListener("keypress", function(event
 // headers: { 'Sec-WebSocket-Protocol': 'json' },
 document.getElementById('open-websocket').onclick = function(){
    if (!jQuery.isEmptyObject(charMap)) {
-      sessionStorage.setItem("chatName", JSON.stringify(document.getElementById('chat-name').value))
-      location.href = 'http://localhost:5050/open_chat'
+      sessionStorage.clear()
+      sessionStorage.setItem("chatName", document.getElementById('chat-name').value)
+      sessionStorage.setItem("charMap", JSON.stringify(charMap))
+      
+      location.href = '/open_chat'
    }
    else {
       alert( "Must generate key before starting chat" )
