@@ -19,25 +19,25 @@ To run the project on your PC you need:
 - Create the virtual environmnet in the main repository:
 
 ```#!/bin/bash
-    \$ python -m venv myvenv
+    $ python -m venv myvenv
 ```
 
 - Activate virtual environmnet
 
 ```#!/bin/bash
-    \$ /myvenv/Scripts/activate
+    $ /myvenv/Scripts/activate
 ```
 
 - Install al the packages from the requirement.txt
 
 ```#!/bin/bash
-    \$ pip install -r /requirements.txt
+    $ pip install -r /requirements.txt
 ```
 
 - Now you need to run the server, by using the driver file in the main repository
 
 ```#!/bin/bash
-    \$ python server_driver.py
+    $ python server_driver.py
 ```
 
 - The last step is going to be to navigate to the: 'http://127.0.0.1:5050/index'
@@ -49,8 +49,19 @@ send it through the network in base64 format.
 
 Below you can find 3 main states of a message:
 
-- Plain Text\
-![plaint_text](/readme_res/first_phase_text.png)
+- Plain Text:\
+![plaint_text](/readme_res/first_phase_text.png) \
+
+- Assigning RGB Values:\
+![rgb_values](/readme_res/rgb_values.png)\
+
+- dataURI and the .png:\
+
+```#!/bin/bash
+    data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAAAKCAYAAAAzSFWlAAAAAXNSR0IArs4c6QAAAMpJREFUWEdj1K85/5+BCCD+8RcRqhgYfDxKiFJHrKIXqZ+IUnr0LS9R6r4lTidKndq2MqLUZawpJkpd0wVWotSJtXQQpe61fwNR6ohVxD43kyil+YzExcejRT5Emcc4mgCxh9NoAsQeLqMJEEe+Gi0BiSpwcCoaLQFxBM1oFYw9YEarYBwJZrQNiD1gRtuA2MNltA2IIyONtgFH24DgEBitgkerYHAIjA7DYE8Io8Mw2MNldBgGR9U6Og6IPWBGe8GjvWBwCIy0gWgAPezjT7CiZnUAAAAASUVORK5CYII=
+```
+
+![image_representation](/readme_res/image_representation.png)\
 
 ## TODO List
 
