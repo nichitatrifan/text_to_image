@@ -49,7 +49,7 @@ send it through the network in base64 format.
 
 Below you can find 3 main states of a message:
 
-- Plain Text
+- Plain Text\
 ![plaint_text](/readme_res/first_phase_text.png)
 
 ## TODO List
