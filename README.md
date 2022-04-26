@@ -25,7 +25,7 @@ To run the project on your PC you need:
 - Activate virtual environmnet
 
 ```#!/bin/bash
-    $ /myvenv/Scripts/activate
+    $ source /myvenv/Scripts/activate
 ```
 
 - Install al the packages from the requirement.txt
