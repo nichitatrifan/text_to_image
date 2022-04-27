@@ -24,14 +24,21 @@ To run the project on your PC you need:
 
 - Activate virtual environmnet
 
+Unix:
+
 ```#!/bin/bash
-    $ source /myvenv/Scripts/activate
+    $ source myvenv/bin/activate
+```
+Windows:
+
+```#!/bin/bash
+    $ .\myvenv\Scripts\activate
 ```
 
 - Install al the packages from the requirement.txt
 
 ```#!/bin/bash
-    $ pip install -r /requirements.txt
+    $ pip install -r requirements.txt
 ```
 
 - Now you need to run the server, by using the driver file in the main repository
